@@ -6,7 +6,7 @@
 <div class="dashboard">   <img src="../assets/swap.svg" 
    alt=""
    class="swap"
-   @click="slide"
+  
    >
     
   
@@ -39,6 +39,9 @@
 <img src="../assets/img_1.PNG">
 
 <img id="my-img" src="../assets/img_2.PNG">
+
+<div id="blue" ></div>
+<div id="red"></div>
 
 <input type="range" min="0" max="100" value="50" id="slider" @input="slide">
 
@@ -273,7 +276,7 @@ const setSelectedRegion = computed( () => {
 function slide(){
     let slideValue = document.getElementById("slider").value;
 
-    document.getElementById("map_").style.clipPath = "polygon(0 0," + slideValue + "% 0," + slideValue + "% 100%, 0 100%)";
+    document.getElementById("my-img").style.clipPath = "polygon(0 0," + slideValue + "% 0," + slideValue + "% 100%, 0 100%)";
 
     console.log("polygon(0 0," + slideValue + "% 0," + slideValue + "% 100%, 0 100%)");
 }
@@ -371,6 +374,19 @@ img{
 
 #my-img{
     clip-path: polygon(0 0 , 50% 0, 50% 100%, 0 100%);
+}
+#red{
+ width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 10vh;
+    background-color: red;
+}
+
+#blue{
+  background-color: cyan;
+    clip-path: polygon(0 0 , 50% 0, 50% 100%, 0 100%);
+
 }
 
 #slider{
