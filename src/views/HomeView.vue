@@ -11,7 +11,6 @@
     <p class="select_country">Select Region</p>
      <select name="" id="country_selection" @click="storeUserSelections.fetchCountriesList"
       @input="storeUserSelections.showSelectedCountry"
-       @change="delay"
        placeholder="Select Region"
       >
 
@@ -20,7 +19,7 @@
       <option v-for="country in storeUserSelections.countries" :key="country">{{ country}}</option>
     </select>
 
-    <button @click="getRegion">load</button>
+    <!-- <button @click="getRegion">load</button> -->
 
    
    
@@ -48,7 +47,7 @@ import "leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 // import { baselayers } from '../Helpers/baselayers'
-import { ref, onMounted, watch, onUpdated} from "vue";
+import { ref, onMounted, watch,  computed} from "vue";
 import { useCounterStore } from '@/stores/counter';
 import axios from 'axios'
 import $ from "jquery";
@@ -97,33 +96,33 @@ onMounted(() => {
 
      //function to get regions 
 
-const getRegion = () => {
-
-  // var region = storeUserSelections.current_geojson
-// console.log(region, 'region ')
-      
+const getRegion = () => {  
   // var region = storeUserSelections.current_geojson
   //     console.log(region , 'region')
-  var region  = storeUserSelections.current_geojson
-  current_geojson.value = region
-  console.log(current_geojson.value, 'store region')
+  if(current_geojson.value)map.removeLayer(current_geojson.value)
 
- 
-
- 
-
-  // console.log(map.value, 'map')
-      
-    L.geoJSON(current_geojson.value, {
+  // var region  = storeUserSelections.showSelectedCountry
+  var selecteRegion = storeUserSelections.getSelectedRegion
+  // console.log(region)
+  current_geojson.value = L.geoJSON(selecteRegion, {
           style: {
             color: "black",
             opacity: 0.3
           }
-           }).addTo(map)
+           })
+  // console.log(current_geojson.value, 'store region')
+
+  current_geojson.value.addTo(map)
+
+//  console.log(current_geojson.value.features[0].properties, 'features')
+
+  // console.log(map.value, 'map')
+      
+   
 
               
 
-            // map.fitBounds( region2.getBounds(), {
+            // map.fitBounds(region.getBounds(), {
             //                 padding: [50, 50],
             //               });
 
@@ -134,17 +133,35 @@ const getRegion = () => {
 // setTimeout(getRegion, 7000);
 
 //  setTimeout(getRegion, 5000);
-const delay = () => {
+// const delay = () => {
 
-             // Bind the current `this` to a local variable, so we can access
-             // it in the anonymous function below. Then, use
-             // `timeout_trigger.call` to bind `element` to its `this` value.
+//              // Bind the current `this` to a local variable, so we can access
+//              // it in the anonymous function below. Then, use
+//              // `timeout_trigger.call` to bind `element` to its `this` value.
              
-             var element = this;
-             setTimeout(function () { getRegion.call(element) }, 3000);
+
+//              if(current_geojson.value !== null){map.removeLayer(current_geojson.value)}
+
+
+//              var element = this;
+//              setTimeout(function () { getRegion.call(element)
+           
+//              }, 3000);
+
+
          
 
-}
+// }
+
+//watch for changes
+
+const setSelectedRegion = computed( () => {
+  return storeUserSelections.getSelectedRegion
+})
+
+ watch( setSelectedRegion , () => {
+  getRegion()
+})
 // const clearMap = () => {
 //    loaded_geojson = current_geojson.value
 //            console.log(loaded_geojson, 'loaded_geojson ')
@@ -156,12 +173,10 @@ const delay = () => {
 
 
 
-watch(   () => {
-  loaded_geojson = current_geojson.value
-           console.log(loaded_geojson, 'loaded_geojson ')
-            if (loaded_geojson !== null) map.removeLayer(loaded_geojson );
-  //  if (current_geojson.value) map.removeLayer(current_geojson.value);
-})
+// const clear = () => {
+//    if(loaded_geojson.value.length > 2 )map.removeLayer(loaded_geojson.value );
+//   //  if (current_geojson.value) map.removeLayer(current_geojson.value);
+// }
 
    
 

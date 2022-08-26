@@ -103,31 +103,34 @@ export const useCounterStore = defineStore({
   },
 
   getters: {
-    loadGeojson: (state) => {
-      var data =  state.selected_region
-      console.log(data, 'data')
+    getSelectedRegion:(state) => state.current_geojson, 
+    // getSelectedGeojson: (state) => state.current_geojson
+    
+//     loadGeojson: (state) => {
+//       var data =  state.selected_region
+//       console.log(data, 'data')
       
 
-      if(data){ 
+//       if(data){ 
 
      
-        axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county='+data
-        )
-      .then((response) => {
-             console.log( response.data,'blackspot data' );
+//         axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county='+data
+//         )
+//       .then((response) => {
+//              console.log( response.data,'blackspot data' );
 
          
            
-                    })
-       .catch( (error) => {
-    console.log('an error occured ' + error);
-})
-//end of county data
+//                     })
+//        .catch( (error) => {
+//     console.log('an error occured ' + error);
+// })
+// //end of county data
 
 
-  }
-  return response.data
-    }
+//   }
+//   return response.data
+//     }
     
   },
 })
