@@ -2,14 +2,8 @@
 <!-- <h1>Dashboard</h1> -->
   <h2 class="selected_region">{{storeUserSelections.selected_region}}</h2>
   <br>
-  <!-- <p>{{storeUserSelections.current_geojson}}</p> -->
-<div class="dashboard">   <img src="../assets/swap.svg" 
-   alt=""
-   class="swap"
-  
-   >
-    
-  
+  <h3 class="selected_region">{{storeUserSelections.selected_cause}}</h3>
+  <br>
 
   <div class="analysis_selections">
    
@@ -25,50 +19,38 @@
     </select>
 
 
- <!-- <VueCompareImage leftImage="../assets/img_1.PNG"
- rightImage="../assets/img_2.PNG"  />; -->
-<!-- <div class="img-comp-container">
-  <div class="img-comp-img">
-    <img src="../assets/img_1.PNG" width="300" height="200">
-  </div>
-  <div class="img-comp-img img-comp-overlay">
-    <img src="../assets/img_2.PNG" width="300" height="200">
-  </div>
-</div> -->
 
-<img src="../assets/img_1.PNG">
+<!-- <img id="first_img" src="../assets/img_1.PNG">
 
-<img id="my-img" src="../assets/img_2.PNG">
+<img id="my-img" src="../assets/img_2.PNG"> -->
 
-<div id="blue" ></div>
-<div id="red"></div>
 
-<input type="range" min="0" max="100" value="50" id="slider" @input="slide">
 
-   
-
-     <!-- <p class="select_cause">Select Cause</p>
-     <select name="" id="cause_selection" @click="storeUserSelections.fetchCountriesList" @change="storeUserSelections.showSelectedCountry" >
-   
-      <option v-for="country in storeUserSelections.countries" :key="country">{{ country}}</option>
-    </select>  -->
+     <p class="select_cause">Select Cause</p>
+     <select name="" id="cause_selection" 
+      @click="storeUserSelections.fetchCausesList"
+      @input="storeUserSelections.showSelectedCause" >
+      <option>{{ storeUserSelections.cause_placeholder}}</option>
+      <option v-for="cause in storeUserSelections.causes" :key="cause">{{ cause }}</option>
+    </select> 
 
   </div>
 
   <div id="map">
-    
-  
-  
-    
-
+   
   </div>
 
   <div id="map_" >
 
   </div>
 
+  <div class="charts">
+    <CausesChart :county="storeUserSelections.selected_region" :cause="storeUserSelections.selected_cause" />
+  </div>
 
-</div>
+  <!-- <input type="range" min="0" max="100" value="50" id="slider" @input="slide"> -->
+
+<!-- </div> -->
 </template>
 
 
@@ -79,11 +61,14 @@ import "leaflet/dist/leaflet.css";
 // import { baselayers } from '../Helpers/baselayers'
 import { ref, onMounted, watch,  computed} from "vue";
 import { useCounterStore } from '@/stores/counter';
-// import axios from 'axios'
+import axios from 'axios'
 // import $ from "jquery";
 
 // import VueCompareImage from "vue-compare-image";
 import "vue-compare-image"
+
+
+import CausesChart from "../components/CausesChart.vue";
 
 
 
@@ -98,7 +83,7 @@ let places = ref([]);
  
 
 var current_geojson = ref(null)
-let loaded_geojson = ref()
+var current_point_geojson = ref(null)
 const mapbox =  L.tileLayer(
        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hyaXNiYXJ0IiwiYSI6ImNrZTFtb3Z2bDAweTMyem1zcmthMGY0ejQifQ.3PzoCgSiG-1-sV1qJvO9Og",
        {
@@ -124,8 +109,6 @@ const mapbox =  L.tileLayer(
        }
      );
 
-  
-
 
 
 onMounted(() => {
@@ -142,22 +125,98 @@ onMounted(() => {
         layers: mapbox
       }); // add the basemaps to the controls
 
-       map_ = L.map("map_", {
-        zoomControl: false,
-        // layersControl: false,
-        center: [0.02, 37.8582273],
-        // minZoom: 6.5,
-        // maxZoom: 20,
-        zoom: 6,
-        // measureControl: true,
-        // defaultExtentControl: true,
-        layers: mapboxSatellite
-      }); // add the basemaps to the controls
+      //  map_ = L.map("map_", {
+      //   zoomControl: false,
+      //   // layersControl: false,
+      //   center: [0.02, 37.8582273],
+      //   // minZoom: 6.5,
+      //   // maxZoom: 20,
+      //   zoom: 6,
+      //   // measureControl: true,
+      //   // defaultExtentControl: true,
+      //   layers: mapboxSatellite
+      // }); // add the basemaps to the controls
 
 })
 
 
+const testData = {
+        // labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
+        // datasets: [
+        //   {
+        //     data: [30, 40, 60, 70, 5],
+        //     backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
+        //   },
+        // ],
 
+        color_info_fromServer:{},
+          names_candidates:[],
+          chartDataFromServer:[],
+          chatData_restructure: {
+             labels:[],
+             datasets:[]
+
+          },
+
+          options: {
+            // scales: {
+            //    xAxes: [{
+            //     //   stacked: true,
+                  
+                  
+            //       ticks: {
+            //          beginAtZero: true,
+                  
+            //          // fontColor: '#2FA036',
+            //       },
+            //       gridLines: {
+            //          display: true
+            //       }
+            //    }],
+            //    yAxes: [{
+            //     //   stacked: true,
+                  
+            //            barPercentage: 0.85,
+                     
+            //        ticks: {
+            //           beginAtZero: true,
+                       
+            //          // fontColor: '#2FA036',
+            //          fontSize: 10,
+            //       },
+            //       gridLines: {
+            //          display: false,
+                     
+            //       }
+            //    }]
+            // },
+      //        tooltips: {
+      //     enabled: true,
+      //     callbacks: {
+      //       label: ((tooltipItems) => {
+      //         console.log(this)
+      //         return tooltipItems.yLabel + '£' +   this.chart_data.datasets[0].toString() 
+      //       })
+      //     }
+      //   },
+           legend: {
+               display: true,
+               position: 'right',
+               margin: 20,
+               labels:{
+                  fontColor: '#fff',
+                  fontWeight: 'bold',
+                  padding: 15,
+                  usePointStyle: true,
+                  pointStyle: 'circle'
+               }
+            },
+            
+            responsive: true,
+            maintainAspectRatio: false,
+          
+         }
+      };
 
 
 
@@ -177,12 +236,44 @@ const getRegion = () => {
            })
   
 
-  // current_geojson.value.addTo(map)
+  current_geojson.value.addTo(map)
 
-            // map.fitBounds(current_geojson.value.getBounds(), {
-            //                 padding: [50, 50],
-            //               }); 
+            map.fitBounds(current_geojson.value.getBounds(), {
+                            padding: [50, 50],
+                          }); 
   
+}
+
+const getPoints = () => {  
+ 
+ if(current_point_geojson.value)map.removeLayer(current_point_geojson.value)
+
+ var selectedPoints = storeUserSelections.getSelectedPoints
+ // console.log(region)
+ current_point_geojson.value= L.geoJSON(selectedPoints, {
+
+
+              pointToLayer: function (feature, latlng){
+
+                var studioicon = L.icon({
+                                                iconUrl: "/src/assets/images/marker.svg",
+                                                iconSize: [30, 30],
+                                                iconAnchor: [15,15]
+                                              });
+            return L.marker(latlng, {icon: studioicon});
+              }
+
+
+        
+          })
+ 
+
+          current_point_geojson.value.addTo(map)
+
+           map.fitBounds(current_point_geojson.value.getBounds(), {
+                           padding: [50, 50],
+                         }); 
+ 
 }
 
 
@@ -193,9 +284,25 @@ const setSelectedRegion = computed( () => {
   return storeUserSelections.getSelectedRegion
 })
 
+const setSelectedPoint = computed( () => {
+  return  storeUserSelections.getSelectedPoints
+})
+
  watch( setSelectedRegion , () => {
   getRegion()
+  
 })
+watch( setSelectedPoint , () => {
+  getPoints()
+  
+})
+
+
+
+//for chart
+
+
+
 
 // function initComparisons() {
 //   var x, i;
@@ -273,13 +380,14 @@ const setSelectedRegion = computed( () => {
 //     }
 //   }
 // }
-function slide(){
-    let slideValue = document.getElementById("slider").value;
 
-    document.getElementById("my-img").style.clipPath = "polygon(0 0," + slideValue + "% 0," + slideValue + "% 100%, 0 100%)";
+// function slide(){
+//     let slideValue = document.getElementById("slider").value;
 
-    console.log("polygon(0 0," + slideValue + "% 0," + slideValue + "% 100%, 0 100%)");
-}
+//     document.getElementById("map").style.clipPath = "polygon(0 0," + slideValue + "% 0," + slideValue + "% 100%, 0 100%)";
+
+//     console.log("polygon(0 0," + slideValue + "% 0," + slideValue + "% 100%, 0 100%)");
+// }
    
 
 
@@ -287,28 +395,32 @@ function slide(){
 
 <style scoped>
 #map{
-  /* height: 30vw;
-  width: 60vw; */
-   width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 20vh;
- 
-}
-#map_{
-  /* height: 30vw;
-  width: 60vw; */
-
-    /* width: 100%;
+  height: 30vw;
+  width: 60vw;
+   /* width: 100%;
     height: 100%;
     position: absolute; */
-
-  clip-path: polygon(0 0 , 50% 0, 50% 100%, 0 100%);
+    /* top: 20vh; */
  
 }
+
+/* img{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+#my-img{
+    clip-path: polygon(0 0 , 50% 0, 50% 100%, 0 100%);
+} */
+/* #slider{ */
+  /* top:30vh; */
+  /* background-color: aqua !important; */
+/* } */
 .analysis_selections{
   height: 5vw;
   width: 60vw;
+  left: -60vw;
   background-color: rgb(253, 235, 213);
 }
 #country_selection{
@@ -319,75 +431,46 @@ function slide(){
   border-radius: 15px;
   border: 2px rgb(4, 87, 134) solid ;
 }
-.select_country{
+.select_country{ 
   position: absolute;
   top: 1vh;
-  left: 0.5vw;
+  /* left: 0.5vw; */
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   font-weight: bold;
 }
-.swap{
+.select_cause{ 
   position: absolute;
-  top: 2vh;
-  left: 50vw;
-  height: 30px;
-  width: 40px;
-  z-index: 1000;
-  background-color: #fff;
-  cursor: pointer;
-
-}
-.img-comp-container {
-  position: relative;
-  height: 200px; /*should be the same height as the images*/
+  top: 1vh;
+  left: 15vw;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-weight: bold;
 }
 
-.img-comp-img {
+
+#cause_selection{
   position: absolute;
-  width: auto;
-  height: auto;
-  overflow:hidden;
+  top: 3.5vh;
+  left: 15vw;
+  width: 10vw;
+  height: 3vh;
+  border-radius: 15px;
+  border: 2px rgb(4, 87, 134) solid ;
 }
 
-.img-comp-img img {
-  display:block;
-  
-}
 
-.img-comp-slider {
-  position: absolute;
-  z-index:9;
-  cursor: ew-resize;
-  /*set the appearance of the slider:*/
-  width: 40px;
-  height: 40px;
-  background-color: #2196F3;
-  opacity: 0.7;
-  border-radius: 50%;
-}
-
-img{
-    width: 100%;
-    height: 100%;
-    position: absolute;
-}
-
-#my-img{
-    clip-path: polygon(0 0 , 50% 0, 50% 100%, 0 100%);
-}
-#red{
+/* #red{
  width: 100%;
     height: 100%;
     position: absolute;
     top: 10vh;
     background-color: red;
-}
+} */
 
-#blue{
-  background-color: cyan;
-    clip-path: polygon(0 0 , 50% 0, 50% 100%, 0 100%);
+/* #blue{ */
+  /* background-color: cyan; */
+    /* clip-path: polygon(0 0 , 50% 0, 50% 100%, 0 100%); */
 
-}
+/* } */
 
 #slider{
     position: relative;
@@ -409,11 +492,16 @@ img{
     background-size: contain;
     cursor: pointer;
 }
+.charts{
+  position:absolute;
+  top: 45vh;
+  left: 42vw;
+  z-index: 1000;
+  
+}
 /* .selected_region{
   position: absolute;
-  top: 20vh;
-  left: 15vw;
-
+  left: -55vw;
 } */
 
 </style>

@@ -12,7 +12,11 @@ export const useCounterStore = defineStore({
     countries: [],
     selected_region: '',
     current_geojson:{},
-    causes:[]
+    cause_placeholder: 'select cause',
+    causes:[],
+    selected_cause:'',
+    current_point_geojson:{}
+
   }),
  
   actions: {
@@ -36,22 +40,6 @@ export const useCounterStore = defineStore({
      
       console.log(data, 'data')
 
-//       if (data){
-//         axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county='+data
-//         )
-//       .then((response) => {
-//         this.current_geojson = response.data
-//              console.log( this.current_geojson ,'blackspot data' );
-             
-
-         
-           
-//                     })
-//        .catch( (error) => {
-//     console.log('an error occured ' + error);
-// })
-
-//       }
 
 //using async await
 
@@ -74,63 +62,66 @@ export const useCounterStore = defineStore({
 
       }
 
-      // sendGetRequest();
-
-    
-
-     
-        
-// return response.data
-//end of county data
-
-
-  
-  // return response.data
-     
-
-   
-
-
-
-
     },
 
     fetchCausesList() {
+      var data = this.selected_region
       
-      
+      const getCausesList = async () => {
+        try {
+            const resp = await  axios.get(baseurl+'/HotSpots/get_hotspot_per_county/?list_causes_per_county='+data
+            );
+
+            this.causes = resp.data.Causes
+            console.log(resp.data.Causes, 'causes response data');
+            return resp.data.Causes
+        } catch (err) {
+            // Handle Error Here
+            console.error('an error occured'+err);
+        }
+    };
+
+    getCausesList();
 
     },
+
+    showSelectedCause($event) {
+      var selected_causes = $event.target.value
+      console.log(selected_causes, 'selected cause')
+
+      this.selected_cause = selected_causes 
+      console.log(this.selected_cause , 'changed selected cause')
+
+      var data = this.selected_region
+      var cause = this.selected_cause
+
+
+      const getPointsCause = async () => {
+
+        try {
+          const response = await axios.get(baseurl+'/HotSpots/get_hotspot_per_county/?hotspot_per_cause='+cause+'&county='+data
+          );
+          this.current_point_geojson = response.data
+          console.log(response.data, 'point data')
+          return response.data
+          
+        } catch (error) {
+          console.error('an error occured'+error);
+          
+        }
+      }
+      getPointsCause();
+
+
+    }
   },
 
   getters: {
     getSelectedRegion:(state) => state.current_geojson, 
-    // getSelectedGeojson: (state) => state.current_geojson
-    
-//     loadGeojson: (state) => {
-//       var data =  state.selected_region
-//       console.log(data, 'data')
-      
-
-//       if(data){ 
-
-     
-//         axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county='+data
-//         )
-//       .then((response) => {
-//              console.log( response.data,'blackspot data' );
-
-         
-           
-//                     })
-//        .catch( (error) => {
-//     console.log('an error occured ' + error);
-// })
-// //end of county data
-
-
-//   }
-//   return response.data
-//     }
+    getSelectedPoints:(state) => state.current_point_geojson,
+    getSelectedCountyName:(state) => state.selected_region, 
+    getSelectedCause:(state) => state.selected_cause, 
+  
     
   },
 })
