@@ -274,7 +274,8 @@ export const useCounterStore = defineStore({
     getSelectedPoints:(state) => state.current_point_geojson,
     getSelectedCountyName:(state) => state.selected_region, 
     getSelectedCause:(state) => state.selected_cause, 
-    getChartData:(state)=>state.testData.chatData_restructure
+    getChartData:(state)=>state.testData.chatData_restructure,
+    getChartOptions:(state)=>state.testData.options
   
     
   },

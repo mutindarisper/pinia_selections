@@ -46,11 +46,12 @@
   </div>
 
   <div class="charts" ref="charts">
+    <div class="chart_title">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div>
     <CausesChart 
     :height="250"
     :width="350"
     :chartData="chartData"
-    :options="testData.options"
+    :options="options"
 
     
     
@@ -248,6 +249,7 @@ const testData = {
       };
 
       const chartData = storeUserSelections.getChartData
+      const options = storeUserSelections.getChartOptions
 
 
 
@@ -328,219 +330,6 @@ watch( setSelectedPoint , () => {
   
 })
 
-
-
-//for chart
-
-
-const getCountyStats = () =>  {
-        
-        // const storeUserSelections = useCounterStore()
-     
-     var county= storeUserSelections.getSelectedCountyName
-      console.log(county, 'STATS COUNTY')
-      // county_data.value = county
-      // console.log(county_data.value, 'REFS County')
-
-      var cause = storeUserSelections.getSelectedCause
-        console.log(cause, 'STATS CAUSE')
-        // cause_data.value = cause
-        // console.log(cause_data.value, 'REFS CAUSE')
-
-    //     if ( county && cause) {
-
-    //       const outPut = axios.get(baseurl+'/HotSpots/get_statics/?county='+county+'&cause='+cause)
-     
-    //          .then((response) => {
-    //               const responseData = response.data.statistics
-
-    //              testData.chartDataFromServer = responseData 
-    //              // console.log(responseData , 'causes statistics')   
-                 
-    //               var stats_data = {'labels':[], 'values':[]}
-
-    //                responseData.map( item => {
-    //                   const key =  Object.keys( item)
-    //                   stats_data[key] = item[key]
-
-                      
-    //           //  console.log(item[key] , 'value')
-    //           // only add data that is greater than 0 to the data structure.
-    //                 if (item[key]> 0){
-    //                    stats_data['labels'].push(key[0])
-                          
-    //                       stats_data['values'].push(item[key])
-    //                 }
-
-                   
-
-    //                 })
-
-    //                 console.log(stats_data, 'labels and data')
-    //                  var Labels = stats_data.labels
-                     
-    //                  var Data = stats_data.values
-                
-    //               setTimeout(() => {
-
-
-    //              // test for chart dynamically
-    //              var chartDataNew = testData.chartDataFromServer
-
-    //              var mychart_data = []   //no. of blackspots per road
-
-    //              // generate names for road labels 
-    //              var names_labels = []
-
-    //              // const places_names = Object.keys(chartDataNew[0]).slice(1)
-                 
-    //              // chartDataNew.map((name =>{
-
-    //              //    var majina = Object.values(name).slice(0,1)
-                    
-                    
-    //              //    names_labels.push(majina[0])
-
-                  
-                    
-
-    //              // }))
-
-    //              var Doughnut_data = {}
-
-    //              var colors_a = ['#ffbb33', '#99cc00', '#ffc7c8', '#33b5e5',  '#ABCDC6', '#ffc7c8', '#9a5fb8', '#32a6b5',  '#ABEBC6']
-
-
-    //              chartDataNew.map((item =>{
-
-    //                 var data_values = Data //Object.values(item).slice(1)
-                 
-                  
-
-
-    //              //   Doughnut_data[item.candidate] = data_values
-
-    //              //    colors_a.push(this.color_info_fromServer[item.candidate]['color'])
-                
-                    
-    //              }))
-
-                
-
-                
-    //              testData.chatData_restructure.labels = Labels 
-    //              testData.chatData_restructure.datasets= Data
-
-    //              // this.names_candidates = names_labels
-    //              // var Datavalues_out = []
-
-                 
-    //              // names_labels.map((name=>{
-
-    //              //     var sum_per_candidate = Doughnut_data[name].reduce((a, b) => a + b, 0)
-
-    //              //     Datavalues_out.push(sum_per_candidate)
-                     
-
-
-                  
-
-
-    //              // }))
-
-              
-
-    //              var datasetStructure =  [{
-    //                    data: Data,
-    //                       label: Labels,
-    //                       backgroundColor:colors_a,
-    //                       fill:true
-    //                 }]
-                     
-
-              
-
-
-    //                 testData.chatData_restructure.labels = Labels
-
-    //              console.log(testData.chatData_restructure.labels, 'labels only')
-    //              testData.chatData_restructure.datasets= datasetStructure
-    //               console.log(testData.chatData_restructure.datasets, 'data only')
-
-    //             //  this.renderChart(testData.chatData_restructure, testData.options)
-    //              console.log( testData.chatData_restructure, 'DATA TYPE OF CHART' )
-         
-    //                  }, 1000)
-
-
-
-             
-
-         
-    //          })
-    //         .catch( (error) => {
-    //      console.log('an error occured ' + error);
-    //  })
-
- 
- 
-    //  return  outPut
-
-    //     }
-      
-   
-
-         
- }
-
-
-
- const setSelectedCountyName = computed( () => {
-        // console.log(storeUserSelections.getSelectedCountyName, 'county name')
-        county_data.value = storeUserSelections.getSelectedCountyName
-      console.log(county_data.value, 'computed chart REFS County')
-
-  return county_data.value
-
-})
-
-const setSelectedRegion_ = computed( () => {
-  return storeUserSelections.getSelectedRegion
-})
-
-const setSelectedCause = computed( () => {
-        // console.log(storeUserSelections.getSelectedCause, 'cause')
-        cause_data.value = storeUserSelections.getSelectedCause
-        console.log(cause_data.value, 'computed chart REFS CAUSE')
-  return cause_data.value 
-
-})
-
-//watch
-watch( setSelectedCountyName  , () => {
-  // setCountyCause() 
-    getCountyStats()
-  
-})
-watch( setSelectedRegion_ , () => {
-    getCountyStats()
-  
-})
-
-
-watch( setSelectedCause , () => {
-    getCountyStats()
-  
-})
-
-watch( county_data , () => {
-    county_data
-  
-})
-watch(cause_data,  () => {
-    cause_data
-  
-})
 
 
 
@@ -708,6 +497,11 @@ watch(cause_data,  () => {
   height: 3vh;
   border-radius: 15px;
 
+}
+.chart_title{
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-weight: bold; 
+  color: #fff;
 }
 
 
