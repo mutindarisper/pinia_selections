@@ -1,14 +1,15 @@
 <template>
-    <DoughnutChart :chartData="testData.chatData_restructure" 
-    :options=testData.options
-     :height=250 :width="350"
+    <DoughnutChart 
+    :chartData="chartData"
+     :cause="cause"
+     :county="county"
     />
 
     
   </template>
   
   <script >
-  import { defineComponent, ref, computed, watch } from 'vue';
+  import { defineComponent, ref, computed, watch, toRef, onMounted } from 'vue';
   import { DoughnutChart } from 'vue-chart-3';
   import { Chart, registerables } from "chart.js";
 
@@ -23,12 +24,13 @@
     name: 'Home',
     components: { DoughnutChart },
     props: {
+
       label: {
          type: String
       },
-      chartData:{
-         type: Array
-      },
+      // chartData:{
+      //    type: Array
+      // },
       // options:{
       //    type: Object
       // },
@@ -40,306 +42,299 @@
       }
 
   },
+ 
     setup() {
+  //     onMounted( () => {
+  //   getCountyStats
+  // })
+  let county_data = ref('')
+let cause_data = ref('')
+  
 
         const storeUserSelections = useCounterStore()
-        const data = ref([30, 40, 60, 70, 5]);
+        // const data = ref([30, 40, 60, 70, 5]);
 
-        // const labels = ref([]);
-        // const datasets = ref([]);
 
-    //     var county= storeUserSelections.getSelectedCountyName
-    //   console.log(county, 'STATS COUNTY')
+      // const testData = {
+      //   // labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
+      //   // datasets: [
+      //   //   {
+      //   //     data: [30, 40, 60, 70, 5],
+      //   //     backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
+      //   //   },
+      //   // ],
 
-      const testData = {
-        // labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
-        // datasets: [
-        //   {
-        //     data: [30, 40, 60, 70, 5],
-        //     backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
-        //   },
-        // ],
+      //   color_info_fromServer:{},
+      //     names_candidates:[],
+      //     chartDataFromServer:[],
+      //     chatData_restructure: {
+      //        labels:[],
+      //        datasets:[],  
+       
+      //     },
 
-        color_info_fromServer:{},
-          names_candidates:[],
-          chartDataFromServer:[],
-          chatData_restructure: {
-             labels:[],
-             datasets:[]
-
-          },
-
-          options: {
-            // scales: {
-            //    xAxes: [{
-            //     //   stacked: true,
+      //     options: {
+      //       // scales: {
+      //       //    xAxes: [{
+      //       //     //   stacked: true,
                   
                   
-            //       ticks: {
-            //          beginAtZero: true,
+      //       //       ticks: {
+      //       //          beginAtZero: true,
                   
-            //          // fontColor: '#2FA036',
-            //       },
-            //       gridLines: {
-            //          display: true
-            //       }
-            //    }],
-            //    yAxes: [{
-            //     //   stacked: true,
+      //       //          // fontColor: '#2FA036',
+      //       //       },
+      //       //       gridLines: {
+      //       //          display: true
+      //       //       }
+      //       //    }],
+      //       //    yAxes: [{
+      //       //     //   stacked: true,
                   
-            //            barPercentage: 0.85,
+      //       //            barPercentage: 0.85,
                      
-            //        ticks: {
-            //           beginAtZero: true,
+      //       //        ticks: {
+      //       //           beginAtZero: true,
                        
-            //          // fontColor: '#2FA036',
-            //          fontSize: 10,
-            //       },
-            //       gridLines: {
-            //          display: false,
+      //       //          // fontColor: '#2FA036',
+      //       //          fontSize: 10,
+      //       //       },
+      //       //       gridLines: {
+      //       //          display: false,
                      
-            //       }
-            //    }]
-            // },
-      //        tooltips: {
-      //     enabled: true,
-      //     callbacks: {
-      //       label: ((tooltipItems) => {
-      //         console.log(this)
-      //         return tooltipItems.yLabel + '£' +   this.chart_data.datasets[0].toString() 
-      //       })
-      //     }
-      //   },
-           legend: {
-               display: true,
-               position: 'right',
-               margin: 20,
-               labels:{
-                  fontColor: '#fff',
-                  fontWeight: 'bold',
-                  padding: 15,
-                  usePointStyle: true,
-                  pointStyle: 'circle'
-               }
-            },
+      //       //       }
+      //       //    }]
+      //       // },
+      // //        tooltips: {
+      // //     enabled: true,
+      // //     callbacks: {
+      // //       label: ((tooltipItems) => {
+      // //         console.log(this)
+      // //         return tooltipItems.yLabel + '£' +   this.chart_data.datasets[0].toString() 
+      // //       })
+      // //     }
+      // //   },
+      //      legend: {
+      //          display: true,
+      //          position: 'right',
+      //          margin: 20,
+      //          labels:{
+      //             fontColor: '#fff',
+      //             fontWeight: 'bold',
+      //             padding: 15,
+      //             usePointStyle: true,
+      //             pointStyle: 'circle'
+      //          }
+      //       },
             
-            responsive: true,
-            maintainAspectRatio: false,
+      //       responsive: true,
+      //       maintainAspectRatio: false,
           
-         }
-      };
+      //    },
+         
+      // };
 
-      
-
-
-
-
-
-    //   const chartData = computed(() => ({
-    //   labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
-    //   datasets: [
-    //     {
-    //       data: data.value,
-    //       backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
-    //     },
-    //   ],
-    // }));
-     
-
-
-    const setSelectedCountyName = computed( () => {
-        // console.log(storeUserSelections.getSelectedCountyName, 'county name')
-  return storeUserSelections.getSelectedCountyName
-
-})
-
-const setSelectedCause = computed( () => {
-        // console.log(storeUserSelections.getSelectedCause, 'cause')
-  return storeUserSelections.getSelectedCause
-
-})
-
-
-
-
-watch( setSelectedCountyName , () => {
-    getCountyStats()
-  
-})
-
-watch( setSelectedCause , () => {
-    getCountyStats()
-  
-})
-
-// watch(chartData, () => {
-//     chartData()
-  
-// })
-
-
-
-      const getCountyStats = () =>  {
+   
+//       const getCountyStats = () =>  {
         
-        // const storeUserSelections = useCounterStore()
+//         // const storeUserSelections = useCounterStore()
      
-     var county= storeUserSelections.getSelectedCountyName
-      console.log(county, 'STATS COUNTY')
+//      var county= storeUserSelections.getSelectedCountyName
+//       console.log(county, 'STATS COUNTY')
+//       // county_data = county
+//       // console.log(county_data, 'REFS County')
 
-      var cause = storeUserSelections.getSelectedCause
-        console.log(cause, 'STATS CAUSE')
+//       var cause = storeUserSelections.getSelectedCause
+//         console.log(cause, 'STATS CAUSE')
+//         // cause_data = cause
+//         // console.log(cause_data, 'REFS CAUSE')
 
-        if ( county && cause) {
+//         if ( county && cause) {
 
-          const outPut = axios.get(baseurl+'/HotSpots/get_statics/?county='+county+'&cause='+cause)
+//           const outPut = axios.get(baseurl+'/HotSpots/get_statics/?county='+county+'&cause='+cause)
      
-             .then((response) => {
-                  const responseData = response.data.statistics
+//              .then((response) => {
+//                   const responseData = response.data.statistics
 
-                 testData.chartDataFromServer = responseData 
-                 // console.log(responseData , 'causes statistics')   
+//                  testData.chartDataFromServer = responseData 
+//                  // console.log(responseData , 'causes statistics')   
                  
-                  var stats_data = {'labels':[], 'values':[]}
+//                   var stats_data = {'labels':[], 'values':[]}
 
-                   responseData.map( item => {
-                      const key =  Object.keys( item)
-                      stats_data[key] = item[key]
+//                    responseData.map( item => {
+//                       const key =  Object.keys( item)
+//                       stats_data[key] = item[key]
 
                       
-              //  console.log(item[key] , 'value')
-              // only add data that is greater than 0 to the data structure.
-                    if (item[key]> 0){
-                       stats_data['labels'].push(key[0])
+//               //  console.log(item[key] , 'value')
+//               // only add data that is greater than 0 to the data structure.
+//                     if (item[key]> 0){
+//                        stats_data['labels'].push(key[0])
                           
-                          stats_data['values'].push(item[key])
-                    }
+//                           stats_data['values'].push(item[key])
+//                     }
 
                    
 
-                    })
+//                     })
 
-                    console.log(stats_data, 'labels and data')
-                     var Labels = stats_data.labels
+//                     console.log(stats_data, 'labels and data')
+//                      var Labels = stats_data.labels
                      
-                     var Data = stats_data.values
+//                      var Data = stats_data.values
                 
-                  setTimeout(() => {
+//                   setTimeout(() => {
 
 
-                 // test for chart dynamically
-                 var chartDataNew = testData.chartDataFromServer
+//                  // test for chart dynamically
+//                  var chartDataNew = testData.chartDataFromServer
 
-                 var mychart_data = []   //no. of blackspots per road
+//                  var mychart_data = []   //no. of blackspots per road
 
-                 // generate names for road labels 
-                 var names_labels = []
+//                  // generate names for road labels 
+//                  var names_labels = []
 
-                 // const places_names = Object.keys(chartDataNew[0]).slice(1)
+//                  // const places_names = Object.keys(chartDataNew[0]).slice(1)
                  
-                 // chartDataNew.map((name =>{
+//                  // chartDataNew.map((name =>{
 
-                 //    var majina = Object.values(name).slice(0,1)
+//                  //    var majina = Object.values(name).slice(0,1)
                     
                     
-                 //    names_labels.push(majina[0])
+//                  //    names_labels.push(majina[0])
 
                   
                     
 
-                 // }))
+//                  // }))
 
-                 var Doughnut_data = {}
+//                  var Doughnut_data = {}
 
-                 var colors_a = ['#ffbb33', '#99cc00', '#ffc7c8', '#33b5e5',  '#ABCDC6', '#ffc7c8', '#9a5fb8', '#32a6b5',  '#ABEBC6']
+//                  var colors_a = ['#ffbb33', '#99cc00', '#ffc7c8', '#33b5e5',  '#ABCDC6', '#ffc7c8', '#9a5fb8', '#32a6b5',  '#ABEBC6']
 
 
-                 chartDataNew.map((item =>{
+//                  chartDataNew.map((item =>{
 
-                    var data_values = Data //Object.values(item).slice(1)
+//                     var data_values = Data //Object.values(item).slice(1)
                  
                   
 
 
-                 //   Doughnut_data[item.candidate] = data_values
+//                  //   Doughnut_data[item.candidate] = data_values
 
-                 //    colors_a.push(this.color_info_fromServer[item.candidate]['color'])
+//                  //    colors_a.push(this.color_info_fromServer[item.candidate]['color'])
                 
                     
-                 }))
+//                  }))
 
                 
 
                 
-                 testData.chatData_restructure.labels = Labels 
-                 testData.chatData_restructure.datasets= Data
+//                  testData.chatData_restructure.labels = Labels 
+//                  testData.chatData_restructure.datasets= Data
 
-                 // this.names_candidates = names_labels
-                 // var Datavalues_out = []
+//                  // this.names_candidates = names_labels
+//                  // var Datavalues_out = []
 
                  
-                 // names_labels.map((name=>{
+//                  // names_labels.map((name=>{
 
-                 //     var sum_per_candidate = Doughnut_data[name].reduce((a, b) => a + b, 0)
+//                  //     var sum_per_candidate = Doughnut_data[name].reduce((a, b) => a + b, 0)
 
-                 //     Datavalues_out.push(sum_per_candidate)
+//                  //     Datavalues_out.push(sum_per_candidate)
                      
 
 
                   
 
 
-                 // }))
+//                  // }))
 
               
 
-                 var datasetStructure =  [{
-                       data: Data,
-                          label: Labels,
-                          backgroundColor:colors_a,
-                          fill:true
-                    }]
+//                  var datasetStructure =  [{
+//                        data: Data,
+//                           label: Labels,
+//                           backgroundColor:colors_a,
+//                           fill:true
+//                     }]
                      
 
               
 
 
-                    testData.chatData_restructure.labels = Labels
+//                     testData.chatData_restructure.labels = Labels
 
-                 console.log(testData.chatData_restructure.labels, 'labels only')
-                 testData.chatData_restructure.datasets= datasetStructure
-                  console.log(testData.chatData_restructure.datasets, 'data only')
+//                  console.log(testData.chatData_restructure.labels, 'labels only')
+//                  testData.chatData_restructure.datasets= datasetStructure
+//                   console.log(testData.chatData_restructure.datasets, 'data only')
 
-                //  this.renderChart(testData.chatData_restructure, testData.options)
-                 console.log( testData.chatData_restructure, 'DATA TYPE OF CHART' )
+//                 //  this.renderChart(testData.chatData_restructure, testData.options)
+//                  console.log( testData.chatData_restructure, 'DATA TYPE OF CHART' )
          
-                     }, 1000)
+//                      }, 1000)
 
 
 
              
 
          
-             })
-            .catch( (error) => {
-         console.log('an error occured ' + error);
-     })
+//              })
+//             .catch( (error) => {
+//          console.log('an error occured ' + error);
+//      })
 
  
  
-     return  outPut
+//      return  outPut
 
-        }
+//         }
       
    
 
          
- }
+//  }
 
-//  getCountyStats()
+//  const setSelectedCountyName = computed( () => {
+//         // console.log(storeUserSelections.getSelectedCountyName, 'county name')
+//         county_data.value = storeUserSelections.getSelectedCountyName
+//         console.log(county_data.value, 'computed REFS County')
 
-// console.log(   testData.chatData_restructure  , 'test data object')
+//   return  storeUserSelections.getSelectedCountyName
 
-return { testData };
+// })
+
+// const setSelectedRegion_ = computed( () => {
+//   return storeUserSelections.getSelectedRegion
+// })
+
+// const setSelectedCause = computed( () => {
+//         // console.log(storeUserSelections.getSelectedCause, 'cause')
+//         cause_data.value = storeUserSelections.getSelectedCause
+//         console.log(cause_data.value, 'computed REFS CAUSE')
+//   return  storeUserSelections.getSelectedCause
+
+// })
+
+// //watch
+// watch( setSelectedCountyName  , () => {
+//   // setCountyCause() 
+//     getCountyStats()
+  
+// })
+// watch( setSelectedRegion_ , () => {
+//     getCountyStats()
+  
+// })
+
+
+// watch( setSelectedCause , () => {
+//     getCountyStats()
+  
+// })
+
+
+// return { testData };
 
 }
 })

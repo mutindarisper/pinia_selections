@@ -15,7 +15,49 @@ export const useCounterStore = defineStore({
     cause_placeholder: 'select cause',
     causes:[],
     selected_cause:'',
-    current_point_geojson:{}
+    current_point_geojson:{},
+      //chart
+      testData:{
+        // labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
+        // datasets: [
+        //   {
+        //     data: [30, 40, 60, 70, 5],
+        //     backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
+        //   },
+        // ],
+        color_info_fromServer:{},
+          names_candidates:[],
+          chartDataFromServer:[],
+          chatData_restructure: {
+             labels:[],
+             datasets:[]
+
+          },
+
+          options: {
+          
+           legend: {
+               display: true,
+               position: 'right',
+               margin: 20,
+               labels:{
+                  fontColor: '#fff',
+                  fontWeight: 'bold',
+                  padding: 15,
+                  usePointStyle: true,
+                  pointStyle: 'circle'
+               }
+            },
+            
+            responsive: true,
+            maintainAspectRatio: false,
+          
+         }
+      }
+
+
+
+
 
   }),
  
@@ -113,6 +155,117 @@ export const useCounterStore = defineStore({
       getPointsCause();
 
 
+
+      const getCountyStats =  async () =>  {
+        
+        var data = this.selected_region
+        var cause = this.selected_cause
+
+        if ( data && cause) {
+
+          const outPut = await axios.get(baseurl+'/HotSpots/get_statics/?county='+data+'&cause='+cause)
+     
+             .then((response) => {
+                  const responseData = response.data.statistics
+
+                 this.testData.chartDataFromServer = responseData 
+                 // console.log(responseData , 'causes statistics')   
+                 
+                  var stats_data = {'labels':[], 'values':[]}
+
+                   responseData.map( item => {
+                      const key =  Object.keys( item)
+                      stats_data[key] = item[key]
+
+                      
+              //  console.log(item[key] , 'value')
+              // only add data that is greater than 0 to the data structure.
+                    if (item[key]> 0){
+                       stats_data['labels'].push(key[0])
+                          
+                          stats_data['values'].push(item[key])
+                    }
+
+                    })
+
+                    console.log(stats_data, 'labels and data')
+                     var Labels = stats_data.labels
+                     
+                     var Data = stats_data.values
+                
+                  setTimeout(() => {
+
+
+                 // test for chart dynamically
+                 var chartDataNew = this.testData.chartDataFromServer
+
+                 var mychart_data = []   //no. of blackspots per road
+
+                 // generate names for road labels 
+                 var names_labels = []
+
+                 // const places_names = Object.keys(chartDataNew[0]).slice(1)
+                 
+                 // chartDataNew.map((name =>{
+
+                 //    var majina = Object.values(name).slice(0,1)
+                    
+                    
+                 //    names_labels.push(majina[0])
+
+                  
+                    
+
+                 // }))
+
+                 var Doughnut_data = {}
+
+                 var colors_a = ['#ffbb33', '#99cc00', '#ffc7c8', '#33b5e5',  '#ABCDC6', '#ffc7c8', '#9a5fb8', '#32a6b5',  '#ABEBC6']
+
+
+                 chartDataNew.map((item =>{
+
+                    var data_values = Data //Object.values(item).slice(1)
+                          
+                    
+                 }))
+
+                 this.testData.chatData_restructure.labels = Labels 
+                 this.testData.chatData_restructure.datasets= Data
+
+                
+                 var datasetStructure =  [{
+                       data: Data,
+                          label: Labels,
+                          backgroundColor:colors_a,
+                          fill:true
+                    }]
+                  
+                    this.testData.chatData_restructure.labels = Labels
+
+                 console.log(this.testData.chatData_restructure.labels, 'labels only')
+                 this.testData.chatData_restructure.datasets= datasetStructure
+                  console.log(this.testData.chatData_restructure.datasets, 'data only')
+
+                //  this.renderChart(testData.chatData_restructure, testData.options)
+                 console.log( this.testData.chatData_restructure, 'DATA TYPE OF CHART' )
+         
+                     }, 1000)
+
+             })
+            .catch( (error) => {
+         console.log('an error occured ' + error);
+     })
+
+     return  outPut
+
+        }
+      
+ }
+ getCountyStats()
+
+
+
     }
   },
 
@@ -121,6 +274,7 @@ export const useCounterStore = defineStore({
     getSelectedPoints:(state) => state.current_point_geojson,
     getSelectedCountyName:(state) => state.selected_region, 
     getSelectedCause:(state) => state.selected_cause, 
+    getChartData:(state)=>state.testData.chatData_restructure
   
     
   },
