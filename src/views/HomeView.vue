@@ -45,7 +45,8 @@
 
   </div>
 
-  <div class="charts" ref="charts">
+  <div class="charts" ref="charts"   v-if="charts">
+    <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()">
     <div class="chart_title">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div>
     <CausesChart 
     :height="250"
@@ -64,7 +65,7 @@
   @click="load_stats()">
   Load stats</button>
 
-  <!-- <input type="range" min="0" max="100" value="50" id="slider" @input="slide">    v-if="charts" -->
+  <!-- <input type="range" min="0" max="100" value="50" id="slider" @input="slide">   -->
 
 <!-- </div>  :county="county_data"
     :cause="cause_data" -->
@@ -107,6 +108,12 @@ let cause_data = ref('')
 
 const load_stats = () => {
   charts.value = true;
+  
+
+} 
+
+const close_chart = () => {
+  if (charts.value = true)charts.value = false;
   
 
 } 
@@ -545,7 +552,16 @@ watch( setSelectedPoint , () => {
   left: 42vw;
   z-index: 1000;
   background-color: black;
+  width: 500px;
+  height: 300px;
   
+}
+.close_chart{
+  position:absolute;
+  top: 1vh;
+  left: 24vw;
+  cursor: pointer;
+  z-index: 1500;
 }
 /* .selected_region{
   position: absolute;
