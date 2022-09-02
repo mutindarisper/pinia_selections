@@ -77,6 +77,8 @@
   @click="load_stats()">
   Load stats</button>
 
+  <button type="button" class="fetch" @click="storeUserSelections.fetchKwale">Fetch</button>
+
   <!-- uploading a custom shapefile -->
   <form action='#' @submit="false">
     <input type='file' id='fileinput'>
@@ -288,6 +290,8 @@ const getPoints = () => {
 
 
 
+
+
 //watch for changes
 
 const setSelectedRegion = computed( () => {
@@ -306,6 +310,32 @@ watch( setSelectedPoint , () => {
   getPoints()
   
 })
+
+
+const getKwaleRegion = () => {  
+ 
+ 
+ if(current_geojson.value)map.removeLayer(current_geojson.value)
+ if(current_point_geojson.value)map.removeLayer(current_point_geojson.value)
+
+ var kwaleRegion = storeUserSelections.getKwale
+
+ // console.log(region)
+ current_geojson.value = L.geoJSON( kwaleRegion, {
+         style: {
+           color: "black",
+           opacity: 0.3
+         }
+          })
+ 
+
+ current_geojson.value.addTo(map)
+
+           map.fitBounds(current_geojson.value.getBounds(), {
+                           padding: [50, 50],
+                         }); 
+ 
+}
 
 
 
@@ -475,6 +505,18 @@ watch( setSelectedPoint , () => {
   border-radius: 15px;
 
 }
+
+.fetch{
+  position: absolute;
+  top: 10.5vh;
+  left: 40vw;
+  width: 10vw;
+  height: 3vh;
+  border-radius: 15px;
+
+}
+
+
 .chart_title{
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   font-weight: bold; 

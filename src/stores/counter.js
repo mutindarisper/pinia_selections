@@ -55,7 +55,8 @@ export const useCounterStore = defineStore({
          }
       },
       //spinner loader
-      loading:false
+      loading:false,
+      kwale_geojson:{}
 
 
 
@@ -282,6 +283,21 @@ export const useCounterStore = defineStore({
 
 
 
+    },
+
+    fetchKwale(){
+      const sendKwaleRequest = async () => {
+        try {
+          const response = await axios.get('http://localhost:8005/geoserver/kwale/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=kwale%3Akwale&maxFeatures=50&outputFormat=application%2Fjson')
+          this.kwale_geojson = response.data
+          console.log(response.data, 'kwale response')
+          return response.data
+        } catch (error) {
+          console.log('could not fetch data'+error)
+          
+        }
+      }
+      sendKwaleRequest();
     }
   },
 
@@ -292,7 +308,8 @@ export const useCounterStore = defineStore({
     getSelectedCause:(state) => state.selected_cause, 
     getChartData:(state)=>state.testData.chatData_restructure,
     getChartOptions:(state)=>state.testData.options,
-    getLoadingState:(state)=> state.loading
+    getLoadingState:(state)=> state.loading,
+    getKwale:(state)=>state.kwale_geojson
   
     
   },
