@@ -53,7 +53,9 @@ export const useCounterStore = defineStore({
             maintainAspectRatio: false,
           
          }
-      }
+      },
+      //spinner loader
+      loading:false
 
 
 
@@ -82,14 +84,18 @@ export const useCounterStore = defineStore({
      
       console.log(data, 'data')
 
+  
+
 
 //using async await
 
       if(data) {
         const sendGetRequest = async () => {
           try {
+            this.loading = true 
               const resp = await  axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county='+data
               );
+              
 
               this.current_geojson = resp.data
               console.log(resp.data, 'await response data');
@@ -97,6 +103,9 @@ export const useCounterStore = defineStore({
           } catch (err) {
               // Handle Error Here
               console.error('an error occured'+err);
+          }
+          finally  { if (this.current_geojson)this.loading = false
+        
           }
       };
 
@@ -111,6 +120,9 @@ export const useCounterStore = defineStore({
       
       const getCausesList = async () => {
         try {
+          
+          // this.loading = true 
+        
             const resp = await  axios.get(baseurl+'/HotSpots/get_hotspot_per_county/?list_causes_per_county='+data
             );
 
@@ -121,6 +133,10 @@ export const useCounterStore = defineStore({
             // Handle Error Here
             console.error('an error occured'+err);
         }
+        // finally  { if (this.current_geojson)this.loading = false
+        
+        // }
+        
     };
 
     getCausesList();
@@ -275,7 +291,8 @@ export const useCounterStore = defineStore({
     getSelectedCountyName:(state) => state.selected_region, 
     getSelectedCause:(state) => state.selected_cause, 
     getChartData:(state)=>state.testData.chatData_restructure,
-    getChartOptions:(state)=>state.testData.options
+    getChartOptions:(state)=>state.testData.options,
+    getLoadingState:(state)=> state.loading
   
     
   },

@@ -5,18 +5,26 @@
   <h3 class="selected_region">{{storeUserSelections.selected_cause}}</h3>
   <br>
 
-  <div class="analysis_selections">
-   
-    <p class="select_country">Select Region</p>
-     <select name="" id="country_selection" @click="storeUserSelections.fetchCountriesList"
-      @input="storeUserSelections.showSelectedCountry"
-       placeholder="Select Region"
-      >
 
-      <option>{{ storeUserSelections.placeholder}}</option>
+  <div ref="loading" class="spinner" v-if="loading">
+            <Spinner />
+        </div>
+
+
+
+        <!-- <div v-else> -->
+          <div class="analysis_selections">
    
-      <option v-for="country in storeUserSelections.countries" :key="country">{{ country}}</option>
-    </select>
+   <p class="select_country">Select Region</p>
+    <select name="" id="country_selection" @click="storeUserSelections.fetchCountriesList"
+     @input="storeUserSelections.showSelectedCountry"
+      placeholder="Select Region"
+     >
+
+     <option>{{ storeUserSelections.placeholder}}</option>
+  
+     <option v-for="country in storeUserSelections.countries" :key="country">{{ country}}</option>
+   </select>
 
 
 
@@ -26,16 +34,23 @@
 
 
 
-     <p class="select_cause">Select Cause</p>
-     <select name="" id="cause_selection" 
-      @click="storeUserSelections.fetchCausesList"
-      @input="storeUserSelections.showSelectedCause" 
-     >
-      <option>{{ storeUserSelections.cause_placeholder}}</option>
-      <option v-for="cause in storeUserSelections.causes" :key="cause">{{ cause }}</option>
-    </select> 
+    <p class="select_cause">Select Cause</p>
+    <select name="" id="cause_selection" 
+     @click="storeUserSelections.fetchCausesList"
+     @input="storeUserSelections.showSelectedCause" 
+    >
+     <option>{{ storeUserSelections.cause_placeholder}}</option>
+     <option v-for="cause in storeUserSelections.causes" :key="cause">{{ cause }}</option>
+   </select> 
 
-  </div>
+ </div>
+
+        <!-- </div> -->
+
+
+
+
+  
 
   <div id="map">
    
@@ -54,9 +69,6 @@
     :chartData="chartData"
     :options="options"
 
-    
-    
-  
     />
   </div>
 
@@ -64,6 +76,12 @@
   class="stats_button"
   @click="load_stats()">
   Load stats</button>
+
+  <!-- uploading a custom shapefile -->
+  <form action='#' @submit="false">
+    <input type='file' id='fileinput'>
+    <input type='button' id='btnLoad' value='Load' @click="loadFile()" >
+</form> 
 
   <!-- <input type="range" min="0" max="100" value="50" id="slider" @input="slide">   -->
 
@@ -80,10 +98,14 @@ import "leaflet/dist/leaflet.css";
 import { ref, onMounted, watch,  computed, reactive} from "vue";
 import { useCounterStore } from '@/stores/counter';
 import axios from 'axios'
+import Spinner from "../components/Spinner.vue";
+
 // import $ from "jquery";
 
 // import VueCompareImage from "vue-compare-image";
 import "vue-compare-image"
+import "shpjs/dist/shp"
+import "shpjs/dist/leaflet.shpfile"
 
 
 import CausesChart from "../components/CausesChart.vue";
@@ -101,9 +123,7 @@ let map;
 let map_;
 let places = ref([]);
 let charts = ref(false);
-let county_data = ref('')
-let cause_data = ref('')
-
+let loading = ref(false)
 // console.log(county_data, 'reeef county')
 
 const load_stats = () => {
@@ -177,86 +197,31 @@ onMounted(() => {
 })
 
 
-const testData = {
-        // labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
-        // datasets: [
-        //   {
-        //     data: [30, 40, 60, 70, 5],
-        //     backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
-        //   },
-        // ],
-
-        // color_info_fromServer:{},
-        //   names_candidates:[],
-        //   chartDataFromServer:[],
-        //   chatData_restructure: {
-        //      labels:[],
-        //      datasets:[]
-
-        //   },
-
-          options: {
-            // scales: {
-            //    xAxes: [{
-            //     //   stacked: true,
-                  
-                  
-            //       ticks: {
-            //          beginAtZero: true,
-                  
-            //          // fontColor: '#2FA036',
-            //       },
-            //       gridLines: {
-            //          display: true
-            //       }
-            //    }],
-            //    yAxes: [{
-            //     //   stacked: true,
-                  
-            //            barPercentage: 0.85,
-                     
-            //        ticks: {
-            //           beginAtZero: true,
-                       
-            //          // fontColor: '#2FA036',
-            //          fontSize: 10,
-            //       },
-            //       gridLines: {
-            //          display: false,
-                     
-            //       }
-            //    }]
-            // },
-      //        tooltips: {
-      //     enabled: true,
-      //     callbacks: {
-      //       label: ((tooltipItems) => {
-      //         console.log(this)
-      //         return tooltipItems.yLabel + '£' +   this.chart_data.datasets[0].toString() 
-      //       })
-      //     }
-      //   },
-           legend: {
-               display: true,
-               position: 'right',
-               margin: 20,
-               labels:{
-                  fontColor: '#fff',
-                  fontWeight: 'bold',
-                  padding: 15,
-                  usePointStyle: true,
-                  pointStyle: 'circle'
-               }
-            },
-            
-            responsive: true,
-            maintainAspectRatio: false,
-          
-         }
-      };
 
       const chartData = storeUserSelections.getChartData
       const options = storeUserSelections.getChartOptions
+      
+
+
+     const loadFile = () => {
+
+var input = document.getElementById('fileinput');
+if (!input.files[0]) {
+    bodyAppend("p", "Please select a file before clicking 'Load'");
+}
+else {
+    var file = input.files[0];
+
+    var fr = new FileReader();
+    fr.onload = receiveBinary;
+    fr.readAsArrayBuffer(file);
+}
+function receiveBinary() {
+    var result = fr.result
+    var shpfile =  new L.Shapefile(result);
+    shpfile.addTo(map);
+}
+}
 
 
 
@@ -264,9 +229,13 @@ const testData = {
 
 const getRegion = () => {  
  
+  loading.value = storeUserSelections.getLoadingState
+  console.log(loading.value, 'loading')
   if(current_geojson.value)map.removeLayer(current_geojson.value)
+  if(current_point_geojson.value)map.removeLayer(current_point_geojson.value)
 
   var selecteRegion = storeUserSelections.getSelectedRegion
+ 
   // console.log(region)
   current_geojson.value = L.geoJSON(selecteRegion, {
           style: {
@@ -285,6 +254,7 @@ const getRegion = () => {
 }
 
 const getPoints = () => {  
+  loading.value = storeUserSelections.getLoadingState
  
  if(current_point_geojson.value)map.removeLayer(current_point_geojson.value)
 
@@ -563,9 +533,17 @@ watch( setSelectedPoint , () => {
   cursor: pointer;
   z-index: 1500;
 }
-/* .selected_region{
-  position: absolute;
-  left: -55vw;
-} */
+.spinner{
+  position:absolute;
+  top: 45vh;
+  left: 72vw;
+  z-index: 1500;
+  /* background-color: black; */
+  width: 500px;
+  height: 150px;
+  
+
+}
+
 
 </style>

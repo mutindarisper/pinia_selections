@@ -1,0 +1,1 @@
+import{u as s,o,c as n,a as e,t as _,b as a}from"./index.76dbdecc.js";const l={class:"about"},u=e("h1",null,"This is an about page",-1),c=e("br",null,null,-1),r=e("br",null,null,-1),b={__name:"AboutView",setup(i){const t=s();return(d,p)=>(o(),n("div",l,[u,c,r,e("h2",null,_(a(t).selected_region),1)]))}};export{b as default};
