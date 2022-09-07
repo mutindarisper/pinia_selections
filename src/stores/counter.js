@@ -56,7 +56,8 @@ export const useCounterStore = defineStore({
       },
       //spinner loader
       loading:false,
-      kwale_geojson:{}
+      kwale_geojson:{},
+      kwale_raster: null
 
 
 
@@ -93,7 +94,7 @@ export const useCounterStore = defineStore({
       if(data) {
         const sendGetRequest = async () => {
           try {
-            this.loading = true 
+            // this.loading = true 
               const resp = await  axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county='+data
               );
               
@@ -105,9 +106,9 @@ export const useCounterStore = defineStore({
               // Handle Error Here
               console.error('an error occured'+err);
           }
-          finally  { if (this.current_geojson)this.loading = false
+          // finally  { if (this.current_geojson)this.loading = false
         
-          }
+          // }
       };
 
       sendGetRequest();
@@ -288,16 +289,34 @@ export const useCounterStore = defineStore({
     fetchKwale(){
       const sendKwaleRequest = async () => {
         try {
-          const response = await axios.get('http://localhost:8005/geoserver/kwale/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=kwale%3Akwale&maxFeatures=50&outputFormat=application%2Fjson')
+          const response = await axios.get('http://localhost:8005/geoserver/rasters/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=rasters%3Akwale&maxFeatures=50&outputFormat=application%2Fjson')
           this.kwale_geojson = response.data
           console.log(response.data, 'kwale response')
-          return response.data
+          // return response.data
+
+
+          //fetch raster
+        
+
         } catch (error) {
           console.log('could not fetch data'+error)
           
         }
       }
       sendKwaleRequest();
+    },
+    fetchKwaleRaster() {
+      const sendRasterRequest = async () => {
+        try {
+          const response = await axios.get('http://localhost:8005/geoserver/rasters/wms')
+          this.kwale_raster = response.data
+          console.log(response.data, 'kwale raster')
+        } catch (error) {
+          console.log(error)
+        }
+
+      }
+      sendRasterRequest();
     }
   },
 
@@ -309,7 +328,8 @@ export const useCounterStore = defineStore({
     getChartData:(state)=>state.testData.chatData_restructure,
     getChartOptions:(state)=>state.testData.options,
     getLoadingState:(state)=> state.loading,
-    getKwale:(state)=>state.kwale_geojson
+    getKwale:(state)=>state.kwale_geojson,
+    getKwaleRaster:(state)=>state.kwale_raster
   
     
   },

@@ -78,6 +78,7 @@
   Load stats</button>
 
   <button type="button" class="fetch" @click="storeUserSelections.fetchKwale">Fetch</button>
+  <button type="button" class="fetch1" @click="load_rasters">Fetch raster</button>
 
   <!-- uploading a custom shapefile -->
   <form action='#' @submit="false">
@@ -108,6 +109,7 @@ import Spinner from "../components/Spinner.vue";
 import "vue-compare-image"
 import "shpjs/dist/shp"
 import "shpjs/dist/leaflet.shpfile"
+import "leaflet.wms"
 
 
 import CausesChart from "../components/CausesChart.vue";
@@ -126,6 +128,7 @@ let map_;
 let places = ref([]);
 let charts = ref(false);
 let loading = ref(false)
+const wmsLayer = ref(null)
 // console.log(county_data, 'reeef county')
 
 const load_stats = () => {
@@ -142,6 +145,7 @@ const close_chart = () => {
 
 var current_geojson = ref(null)
 var current_point_geojson = ref(null)
+var current_shapefile = ref(null)
 const mapbox =  L.tileLayer(
        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hyaXNiYXJ0IiwiYSI6ImNrZTFtb3Z2bDAweTMyem1zcmthMGY0ejQifQ.3PzoCgSiG-1-sV1qJvO9Og",
        {
@@ -182,6 +186,9 @@ onMounted(() => {
         // defaultExtentControl: true,
         layers: mapbox
       }); // add the basemaps to the controls
+
+
+      
 
       //  map_ = L.map("map_", {
       //   zoomControl: false,
@@ -231,8 +238,8 @@ function receiveBinary() {
 
 const getRegion = () => {  
  
-  loading.value = storeUserSelections.getLoadingState
-  console.log(loading.value, 'loading')
+  // loading.value = storeUserSelections.getLoadingState
+  // console.log(loading.value, 'loading')
   if(current_geojson.value)map.removeLayer(current_geojson.value)
   if(current_point_geojson.value)map.removeLayer(current_point_geojson.value)
 
@@ -336,6 +343,61 @@ const getKwaleRegion = () => {
                          }); 
  
 }
+
+const setSelectedRegion_ = computed( () => {
+  return storeUserSelections.getKwale
+})
+watch( setSelectedRegion_ , () => {
+  getKwaleRegion()
+  
+})
+
+// const getKwaleCarbonatites = () => {
+
+
+                
+//   var kwaleRaster = storeUserSelections.getKwaleRaster
+//   var wmsLayer = L.tileLayer.wms(kwaleRaster, {
+//         pane: 'rasters',
+//     // transparent: true,  
+//     //    format: 'image/png',
+//     // layers: 'rasters:kwale_tif',
+//     // tiles: true,  
+// });
+// wmsLayer.addTo(map);
+
+// }
+
+
+// const setSelectedRaster = computed( () => {
+//   return storeUserSelections.getKwaleRaster
+// })
+// watch( setSelectedRaster , () => {
+//   getKwaleCarbonatites()
+  
+// })
+
+const load_rasters = () => {
+           console.log("loading raster!")
+          //  map.createPane('rasters');
+          //  map.getPane('rasters').style.zIndex = 3000;
+
+      wmsLayer.value = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+        // pane: 'rasters',
+        layers: 'rasters:kwale_tif',
+        format: 'image/png',
+        transparent: true,  
+        opacity:1
+        // tiles: true,  
+});
+console.log(wmsLayer, 'wms layer')
+wmsLayer.value.addTo(map);
+wmsLayer.value.bringToFront();
+
+      }
+      // load_rasters()
+// 
+
 
 
 
@@ -510,7 +572,17 @@ const getKwaleRegion = () => {
   position: absolute;
   top: 10.5vh;
   left: 40vw;
-  width: 10vw;
+  width: 7vw;
+  height: 3vh;
+  border-radius: 15px;
+
+}
+
+.fetch1{
+  position: absolute;
+  top: 10.5vh;
+  left: 47vw;
+  width: 7vw;
   height: 3vh;
   border-radius: 15px;
 
