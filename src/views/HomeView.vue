@@ -53,12 +53,13 @@
   
 
   <div id="map">
+  
    
   </div>
-
   <div id="map_" >
 
-  </div>
+</div>
+ 
 
   <div class="charts" ref="charts"   v-if="charts">
     <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()">
@@ -86,6 +87,8 @@
     <input type='button' id='btnLoad' value='Load' @click="loadFile()" >
 </form> 
 
+<button @click="compareLayers" class="compare">compare</button>
+
   <!-- <input type="range" min="0" max="100" value="50" id="slider" @input="slide">   -->
 
 <!-- </div>  :county="county_data"
@@ -110,9 +113,11 @@ import "vue-compare-image"
 import "shpjs/dist/shp"
 import "shpjs/dist/leaflet.shpfile"
 import "leaflet.wms"
+import sideByside from "leaflet-side-by-side";
 
 
 import CausesChart from "../components/CausesChart.vue";
+import leafletWms from "leaflet.wms";
 
 
 
@@ -128,7 +133,7 @@ let map_;
 let places = ref([]);
 let charts = ref(false);
 let loading = ref(false)
-const wmsLayer = ref(null)
+let wmsLayer;
 // console.log(county_data, 'reeef county')
 
 const load_stats = () => {
@@ -146,6 +151,9 @@ const close_chart = () => {
 var current_geojson = ref(null)
 var current_point_geojson = ref(null)
 var current_shapefile = ref(null)
+let left_pane;
+let  right_pane;
+
 const mapbox =  L.tileLayer(
        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hyaXNiYXJ0IiwiYSI6ImNrZTFtb3Z2bDAweTMyem1zcmthMGY0ejQifQ.3PzoCgSiG-1-sV1qJvO9Og",
        {
@@ -188,7 +196,58 @@ onMounted(() => {
       }); // add the basemaps to the controls
 
 
-      
+
+      map.createPane('left');
+      map.createPane('right');
+     
+
+//       var layer1 = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+//   attribution:
+//     '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+// }).addTo(map);
+
+// var layer2 = L.tileLayer(
+//   "https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}",
+//   {
+//     attribution:
+//       'Map tiles by <a href="https://stamen.com">Stamen Design</a>, ' +
+//       '<a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> — ' +
+//       "Map data {attribution.OpenStreetMap}",
+//     ext: "jpg"
+//   }
+// ).addTo(map);
+
+
+var overlay1 =  L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+        pane: 'right',
+        layers: 'rasters:kwale_tif',
+        format: 'image/png',
+        transparent: true,  
+        opacity:1
+        // tiles: true,  
+}).addTo(map);
+
+
+var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+        pane: 'left',
+        layers: 'rasters:kwale',
+        format: 'image/png',
+        transparent: true,  
+        opacity:1
+        // tiles: true,  
+}).addTo(map);
+
+
+
+L.control.sideBySide( overlay1, overlay2).addTo(map);
+
+//  const compareLayers = () => {
+
+//         L.control.sideBySide( overlay1, overlay2).addTo(map);
+
+//       }
+
+
 
       //  map_ = L.map("map_", {
       //   zoomControl: false,
@@ -202,7 +261,7 @@ onMounted(() => {
       //   layers: mapboxSatellite
       // }); // add the basemaps to the controls
 
-     
+      // L.control.sideBySide( left_pane, wmsLayer).addTo(map);
 })
 
 
@@ -250,11 +309,13 @@ const getRegion = () => {
           style: {
             color: "black",
             opacity: 0.3
-          }
+          },
+          pane: 'left'
            })
   
 
   current_geojson.value.addTo(map)
+left_pane = selecteRegion
 
             map.fitBounds(current_geojson.value.getBounds(), {
                             padding: [50, 50],
@@ -270,6 +331,7 @@ const getPoints = () => {
  var selectedPoints = storeUserSelections.getSelectedPoints
  // console.log(region)
  current_point_geojson.value= L.geoJSON(selectedPoints, {
+  pane: 'right',
 
 
               pointToLayer: function (feature, latlng){
@@ -288,13 +350,13 @@ const getPoints = () => {
  
 
           current_point_geojson.value.addTo(map)
+       right_pane = selectedPoints 
 
            map.fitBounds(current_point_geojson.value.getBounds(), {
                            padding: [50, 50],
                          }); 
  
 }
-
 
 
 
@@ -319,6 +381,9 @@ watch( setSelectedPoint , () => {
 })
 
 
+
+
+
 const getKwaleRegion = () => {  
  
  
@@ -328,19 +393,23 @@ const getKwaleRegion = () => {
  var kwaleRegion = storeUserSelections.getKwale
 
  // console.log(region)
- current_geojson.value = L.geoJSON( kwaleRegion, {
+left_pane = L.geoJSON( kwaleRegion, {
          style: {
            color: "black",
            opacity: 0.3
-         }
+         },
+        //  pane: 'left'
           })
  
 
- current_geojson.value.addTo(map)
+ left_pane.addTo(map)
 
-           map.fitBounds(current_geojson.value.getBounds(), {
+           map.fitBounds(left_pane.getBounds(), {
                            padding: [50, 50],
                          }); 
+
+                        
+                         return left_pane
  
 }
 
@@ -382,8 +451,8 @@ const load_rasters = () => {
           //  map.createPane('rasters');
           //  map.getPane('rasters').style.zIndex = 3000;
 
-      wmsLayer.value = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
-        // pane: 'rasters',
+      wmsLayer = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+        // pane: 'right',
         layers: 'rasters:kwale_tif',
         format: 'image/png',
         transparent: true,  
@@ -391,12 +460,26 @@ const load_rasters = () => {
         // tiles: true,  
 });
 console.log(wmsLayer, 'wms layer')
-wmsLayer.value.addTo(map);
-wmsLayer.value.bringToFront();
+wmsLayer.addTo(map);
+
+return wmsLayer
+// wmsLayer.value.bringToFront();
+
 
       }
+
+    
+
+
+      // const compareLayers = () => {
+
+      //   L.control.sideBySide( left_pane, wmsLayer).addTo(map);
+
+      // }
+
+    
       // load_rasters()
-// 
+
 
 
 
@@ -588,6 +671,17 @@ wmsLayer.value.bringToFront();
 
 }
 
+.compare{
+  position: absolute;
+  top: 78.5vh;
+  left: 47vw;
+  width: 7vw;
+  height: 3vh;
+  border-radius: 15px;
+
+}
+
+
 
 .chart_title{
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
@@ -595,20 +689,6 @@ wmsLayer.value.bringToFront();
   color: #fff;
 }
 
-
-/* #red{
- width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 10vh;
-    background-color: red;
-} */
-
-/* #blue{ */
-  /* background-color: cyan; */
-    /* clip-path: polygon(0 0 , 50% 0, 50% 100%, 0 100%); */
-
-/* } */
 
 #slider{
     position: relative;
