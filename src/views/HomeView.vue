@@ -59,6 +59,7 @@
   <div id="map_" >
 
 </div>
+
  
 
   <div class="charts" ref="charts"   v-if="charts">
@@ -114,6 +115,8 @@ import "shpjs/dist/shp"
 import "shpjs/dist/leaflet.shpfile"
 import "leaflet.wms"
 import sideByside from "leaflet-side-by-side";
+import "leaflet-side-by-side/layout.css"
+import "leaflet-side-by-side/range.css"
 
 
 import CausesChart from "../components/CausesChart.vue";
@@ -248,7 +251,7 @@ L.control.sideBySide( overlay1, overlay2).addTo(map);
 //       }
 
 
-
+ 
       //  map_ = L.map("map_", {
       //   zoomControl: false,
       //   // layersControl: false,
@@ -689,7 +692,7 @@ return wmsLayer
   color: #fff;
 }
 
-
+/* 
 #slider{
     position: relative;
     -webkit-appearance: none;
@@ -705,11 +708,11 @@ return wmsLayer
     width: 45px;
     background: url("../assets/swap.svg"),
     rgba(255,255,255,0.3);
-    border: 4px solid white;
+    border: 4px solid rgb(175, 23, 23);
     border-radius: 50%;
     background-size: contain;
     cursor: pointer;
-}
+} */
 .charts{
   position:absolute;
   top: 45vh;
@@ -738,6 +741,9 @@ return wmsLayer
   
 
 }
+
+
+
 
 
 </style>

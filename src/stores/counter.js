@@ -10,7 +10,7 @@ export const useCounterStore = defineStore({
     counter: 0,
     placeholder: 'select region',
     countries: [],
-    selected_region: '',
+    selected_region: 'Kiambu',
     current_geojson:{},
     cause_placeholder: 'select cause',
     causes:[],
