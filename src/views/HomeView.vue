@@ -62,7 +62,7 @@
 
  
 
-  <div class="charts" ref="charts"   v-if="charts" id="sidebar">
+  <div class="charts" ref="charts"   v-if="charts" >
     <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()">
     <div class="chart_title">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div>
     <CausesChart 
@@ -140,7 +140,7 @@
                   <div class="q-pa-xs">
                     <div
                       class="text-weight-bolder text-h6"
-                      @click="handleAnalysisMetaSwap('metadata')"
+                      @click="handleAnalysisMetaSwap()"
                       style="cursor: pointer"
                     >
                       <span
@@ -149,7 +149,7 @@
                             ? 'side_nav_swap'
                             : ''
                         "
-                        >Metadata</span
+                        >Metadata r</span
                       >
                     </div>
                   </div>
@@ -167,13 +167,14 @@
             <label class="text-bold" style="font-family: Montserrat">
               {{ chart_title }}
             </label>
-            <!-- <CausesChart
+            
+            <CausesChart
             :height="250"
             :width="350"
             :chartData="chartData"
             :options="options"
              
-            /> -->
+            />
 
          
             <br />
@@ -186,16 +187,24 @@
               :width="180"
               class="q-pt-lg q-pr-lg bg-grey-2"
             /> -->
-            <!-- <CausesChart
+            <div class="chart_sidebar">
+              <CausesChart
             :height="250"
             :width="350"
             :chartData="chartData"
             :options="options"
            
-            /> -->
+            />
+            </div>
+           
           </div>
           <div class="meta" v-if="analysis_swap_toggle === 'metadata'">
-            metatata
+            {{storeUserSelections.selected_cause}}
+            <br> {{storeUserSelections.selected_cause}}
+            <br>
+            {{storeUserSelections.selected_region}}
+              <br>
+              {{storeUserSelections.selected_cause}}
           </div>
           <!-- <LineChart :height="250" :width="250" /> -->
           <div class="logos_container row">
@@ -204,6 +213,9 @@
         </div>
       </div>
     </div>
+  
+
+    
 
 
 
@@ -236,7 +248,7 @@ import sideByside from "leaflet-side-by-side";
 import CausesChart from "../components/CausesChart.vue";
 // import leafletWms from "leaflet.wms";
 import "leaflet-sidebar-v2";
-import "leaflet-sidebar-v2/css/leaflet-sidebar.css";
+// import "leaflet-sidebar-v2/css/leaflet-sidebar.css";
 
 import { close_nav, open_nav } from "../Helpers/SideNavControls";
 import SideNavLogos from "../views/SideNavLogos.vue"
@@ -337,8 +349,8 @@ const mapbox =  L.tileLayer(
       close_nav();
       show_sidenav.value= true;
     }
-    const handleAnalysisMetaSwap = (value) => {
-      analysis_swap_toggle = value;
+    const handleAnalysisMetaSwap = () => {
+      analysis_swap_toggle = 'metadata';
     }
 
 
@@ -394,7 +406,7 @@ onMounted(() => {
             // console.log(region)
  kiambu = L.geoJSON(selecteRegion, {
           style: {
-            color: "red",
+            color: "black",
             opacity: 0.8
           },
           pane: 'left'
