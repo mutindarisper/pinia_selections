@@ -15,6 +15,7 @@
     "jquery": "^3.6.0",
     "leaflet": "^1.8.0",
     "leaflet-side-by-side": "^2.2.0",
+    "leaflet-sidebar-v2": "^3.2.3",
     "leaflet.wms": "^0.2.0",
     "pinia": "^2.0.17",
     "shpjs": "^4.0.4",

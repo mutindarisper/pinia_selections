@@ -74,6 +74,31 @@ export const useCounterStore = defineStore({
       this.countries = ['Kiambu', 'Laikipia', 'Meru', 'Embu', 'Nyeri']
 
     },
+
+    fetchKiambuCounty() {
+      const sendGetRequest = async () => {
+        try {
+          // this.loading = true 
+            const resp = await  axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county=Kiambu'
+            );
+            
+
+            this.current_geojson = resp.data
+            console.log(resp.data, 'await response data');
+           
+        } catch (err) {
+            // Handle Error Here
+            console.error('an error occured'+err);
+        }
+        // finally  { if (this.current_geojson)this.loading = false
+      
+        // }
+        return resp.data
+    };
+
+    sendGetRequest();
+
+    },
     showSelectedCountry($event){
       var selected_country = $event.target.value
       console.log(selected_country, 'selected country')

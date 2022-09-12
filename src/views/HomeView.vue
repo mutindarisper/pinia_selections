@@ -62,7 +62,7 @@
 
  
 
-  <div class="charts" ref="charts"   v-if="charts">
+  <div class="charts" ref="charts"   v-if="charts" id="sidebar">
     <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()">
     <div class="chart_title">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div>
     <CausesChart 
@@ -88,12 +88,125 @@
     <input type='button' id='btnLoad' value='Load' @click="loadFile()" >
 </form> 
 
-<button @click="compareLayers" class="compare">compare</button>
+<button @click="compareLayer" class="compare">compare</button>
 
   <!-- <input type="range" min="0" max="100" value="50" id="slider" @input="slide">   -->
 
 <!-- </div>  :county="county_data"
     :cause="cause_data" -->
+
+
+    <!-- leaflet side bar -->
+    <!-- <div class="side-bar-view"> -->
+      <SideBarView />
+    <!-- </div> -->
+
+    <div id="sidenav" class="sidenav bg-white">
+      <div id="mySidenav" style="height: 100%">
+        <div id="protrusion" class="bg-white protrusion">
+          <div @click.stop="toggle_nav">
+            <img id="close" src="../assets/open.svg" v-if="!show_sidenav" />
+            <img id="open" src="../assets/open.svg" v-if="show_sidenav" />
+          </div>
+        </div>
+        <div class="sidenav_body" v-if="!show_sidenav">
+          <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+              <div class="row" v-if="show_search">
+                <div class="col-xs-6 offset-3">
+                  <input dense outlined v-model="search" label="Search" />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="q-pa-xs">
+                    <div
+                      class="text-weight-bolder text-h6"
+                      @click="handleAnalysisMetaSwap('data_analysis')"
+                      style="cursor: pointer"
+                    >
+                      <span
+                        :class="
+                          analysis_swap_toggle === 'data_analysis'
+                            ? 'side_nav_swap'
+                            : ''
+                        "
+                        >Data Analysis</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="q-pa-xs">
+                    <div
+                      class="text-weight-bolder text-h6"
+                      @click="handleAnalysisMetaSwap('metadata')"
+                      style="cursor: pointer"
+                    >
+                      <span
+                        :class="
+                          analysis_swap_toggle === 'metadata'
+                            ? 'side_nav_swap'
+                            : ''
+                        "
+                        >Metadata</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="analysis_swap_toggle === 'data_analysis'">
+            <!-- <q-btn flat label="get WMS" @click="getWMS_Layer" /> -->
+
+            <p>
+              {{ summary_text }}
+            </p>
+            <br />
+            <label class="text-bold" style="font-family: Montserrat">
+              {{ chart_title }}
+            </label>
+            <!-- <CausesChart
+            :height="250"
+            :width="350"
+            :chartData="chartData"
+            :options="options"
+             
+            /> -->
+
+         
+            <br />
+            <label class="text-bold" style="font-family: Montserrat">
+              {{ line_chart_title }}</label
+            >
+            <!-- <LineChart
+              :Stats="stats"
+              :height="250"
+              :width="180"
+              class="q-pt-lg q-pr-lg bg-grey-2"
+            /> -->
+            <!-- <CausesChart
+            :height="250"
+            :width="350"
+            :chartData="chartData"
+            :options="options"
+           
+            /> -->
+          </div>
+          <div class="meta" v-if="analysis_swap_toggle === 'metadata'">
+            metatata
+          </div>
+          <!-- <LineChart :height="250" :width="250" /> -->
+          <div class="logos_container row">
+            <SideNavLogos />
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
 </template>
 
 
@@ -106,6 +219,7 @@ import { ref, onMounted, watch,  computed, reactive} from "vue";
 import { useCounterStore } from '@/stores/counter';
 import axios from 'axios'
 import Spinner from "../components/Spinner.vue";
+import SideBarView from "../views/SideBarView.vue"
 
 // import $ from "jquery";
 
@@ -115,12 +229,17 @@ import "shpjs/dist/shp"
 import "shpjs/dist/leaflet.shpfile"
 import "leaflet.wms"
 import sideByside from "leaflet-side-by-side";
-import "leaflet-side-by-side/layout.css"
-import "leaflet-side-by-side/range.css"
+// import "leaflet-side-by-side/layout.css"
+// import "leaflet-side-by-side/range.css"
 
 
 import CausesChart from "../components/CausesChart.vue";
-import leafletWms from "leaflet.wms";
+// import leafletWms from "leaflet.wms";
+import "leaflet-sidebar-v2";
+import "leaflet-sidebar-v2/css/leaflet-sidebar.css";
+
+import { close_nav, open_nav } from "../Helpers/SideNavControls";
+import SideNavLogos from "../views/SideNavLogos.vue"
 
 
 
@@ -137,6 +256,21 @@ let places = ref([]);
 let charts = ref(false);
 let loading = ref(false)
 let wmsLayer;
+let kiambu;
+var kiambu_points = ref(null)
+let sidebar = ref(null)
+let show_sidenav = ref(false)
+let show_search = ref(false)
+let search = ref("")
+let analysis_swap_toggle = "data_analysis"
+let summary_text =  ` Land use land cover maps monitor the land use in a specific year. The
+      integration of the biophysical and human factors plays a leading role in
+      causing land-use changes, and is used to explain the dynamics of land use
+      that occur within a river basin or a wetland. The study of land cover may
+      also be used to predict future trends of an ecosystem while understanding
+      its sustainability.`
+let chart_title = "title"
+let line_chart_title = "Vegatation Cover (Histogram)"
 // console.log(county_data, 'reeef county')
 
 const load_stats = () => {
@@ -184,6 +318,39 @@ const mapbox =  L.tileLayer(
 
 
 
+     //sidebar functionality
+     const toggle_nav = (e)  => {
+      console.log(" toggle_nav ", e.target.id);
+      const cmd = e.target.id;
+      if (cmd === "close") return closeNav();
+      return openNav();
+    }
+
+   const openNav = () => {
+      sidebar.value.open("home");
+      show_sidenav.value = false;
+      open_nav();
+    }
+
+    const closeNav = () => {
+      sidebar.value.close("home");
+      close_nav();
+      show_sidenav.value= true;
+    }
+    const handleAnalysisMetaSwap = (value) => {
+      analysis_swap_toggle = value;
+    }
+
+
+    const AddSideLeafletSideBar = () => {
+      sidebar.value = L.control.sidebar({
+        container: "sidebar",
+        position: "right",
+      });
+      map.addControl(sidebar.value);
+    }
+
+
 onMounted(() => {
   
    map = L.map("map", {
@@ -198,10 +365,106 @@ onMounted(() => {
         layers: mapbox
       }); // add the basemaps to the controls
 
+      //add sidebar
+      AddSideLeafletSideBar();
+
+      closeNav();
+
 
 
       map.createPane('left');
       map.createPane('right');
+
+      var selecteRegion = storeUserSelections.fetchKiambuCounty
+      console.log(selecteRegion, 'kiambu')
+
+
+
+
+      const sendGetRequest = async () => {
+        try {
+          // this.loading = true 
+            const resp = await  axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county=Kiambu'
+            );
+            
+
+            // this.current_geojson = resp.data
+            console.log(resp.data, 'await kiambu response data');
+            var selecteRegion = resp.data
+            // console.log(region)
+ kiambu = L.geoJSON(selecteRegion, {
+          style: {
+            color: "red",
+            opacity: 0.8
+          },
+          pane: 'left'
+           }).addTo(map)
+
+
+           map.fitBounds(kiambu.getBounds(), {
+                            padding: [50, 50],
+                          }); 
+  
+           
+        } catch (err) {
+            // Handle Error Here
+            console.error('an error occured'+err);
+        }
+        // finally  { if (this.current_geojson)this.loading = false
+      
+        // }
+        // return resp.data
+    };
+    sendGetRequest();
+
+
+    const getPointsCause = async () => {
+
+try {
+  const response = await axios.get(baseurl+'/HotSpots/get_hotspot_per_county/?hotspot_per_cause=Infrastructural&county=Kiambu'
+  );
+  var kiambuPoints= response.data
+kiambu_points.value = L.geoJSON(kiambuPoints, {
+  // pane: 'right',
+
+
+              pointToLayer: function (feature, latlng){
+
+                var studioicon = L.icon({
+                                                iconUrl: "/src/assets/images/marker.svg",
+                                                iconSize: [30, 30],
+                                                iconAnchor: [15,15]
+                                              });
+            return L.marker(latlng, {icon: studioicon});
+              }
+
+
+        
+          })
+ 
+
+          kiambu_points.value.addTo(map)
+      //  right_pane = selectedPoints 
+
+           map.fitBounds(kiambu_points.value.getBounds(), {
+                           padding: [50, 50],
+                         }); 
+ 
+  console.log(response.data, 'point data')
+  return response.data
+  
+} catch (error) {
+  console.error('an error occured'+error);
+  
+}
+}
+getPointsCause();
+
+
+
+
+ 
+  
      
 
 //       var layer1 = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -221,34 +484,11 @@ onMounted(() => {
 // ).addTo(map);
 
 
-var overlay1 =  L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
-        pane: 'right',
-        layers: 'rasters:kwale_tif',
-        format: 'image/png',
-        transparent: true,  
-        opacity:1
-        // tiles: true,  
-}).addTo(map);
-
-
-var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
-        pane: 'left',
-        layers: 'rasters:kwale',
-        format: 'image/png',
-        transparent: true,  
-        opacity:1
-        // tiles: true,  
-}).addTo(map);
 
 
 
-L.control.sideBySide( overlay1, overlay2).addTo(map);
+// L.control.sideBySide( overlay1, overlay2).addTo(map);
 
-//  const compareLayers = () => {
-
-//         L.control.sideBySide( overlay1, overlay2).addTo(map);
-
-//       }
 
 
  
@@ -267,12 +507,8 @@ L.control.sideBySide( overlay1, overlay2).addTo(map);
       // L.control.sideBySide( left_pane, wmsLayer).addTo(map);
 })
 
-
-
       const chartData = storeUserSelections.getChartData
       const options = storeUserSelections.getChartOptions
-      
-
 
      const loadFile = () => {
 
@@ -302,6 +538,8 @@ const getRegion = () => {
  
   // loading.value = storeUserSelections.getLoadingState
   // console.log(loading.value, 'loading')
+  if(kiambu)map.removeLayer(kiambu)
+  if(kiambu_points.value)map.removeLayer(kiambu_points.value)
   if(current_geojson.value)map.removeLayer(current_geojson.value)
   if(current_point_geojson.value)map.removeLayer(current_point_geojson.value)
 
@@ -313,7 +551,7 @@ const getRegion = () => {
             color: "black",
             opacity: 0.3
           },
-          pane: 'left'
+          pane: 'right'
            })
   
 
@@ -328,13 +566,13 @@ left_pane = selecteRegion
 
 const getPoints = () => {  
   loading.value = storeUserSelections.getLoadingState
- 
+  if(kiambu_points.value)map.removeLayer(kiambu_points.value)
  if(current_point_geojson.value)map.removeLayer(current_point_geojson.value)
 
  var selectedPoints = storeUserSelections.getSelectedPoints
  // console.log(region)
  current_point_geojson.value= L.geoJSON(selectedPoints, {
-  pane: 'right',
+  // pane: 'right',
 
 
               pointToLayer: function (feature, latlng){
@@ -382,7 +620,6 @@ watch( setSelectedPoint , () => {
   getPoints()
   
 })
-
 
 
 
@@ -456,7 +693,7 @@ const load_rasters = () => {
 
       wmsLayer = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
         // pane: 'right',
-        layers: 'rasters:kwale_tif',
+        layers: 'rasters:kiambu_clip1',
         format: 'image/png',
         transparent: true,  
         opacity:1
@@ -471,110 +708,43 @@ return wmsLayer
 
       }
 
-    
+      const compareLayer = () => {
+
+  
+var overlay1 =  L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+        pane: 'right',
+        layers: 'rasters:kwale_tif',
+        format: 'image/png',
+        transparent: true,  
+        opacity:1
+        // tiles: true,  
+}).addTo(map);
 
 
-      // const compareLayers = () => {
+var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+        pane: 'right',
+        layers: 'rasters:kwale',
+        format: 'image/png',
+        transparent: true,  
+        opacity:1
+        // tiles: true,  
+}).addTo(map);
+// var overlay1 = kiambu
+// var overlay2 = current_geojson.value
+// console.log(overlay1, 'overlay1')
+// console.log(overlay2, 'overlay2')
 
-      //   L.control.sideBySide( left_pane, wmsLayer).addTo(map);
+    L.control.sideBySide(overlay1, overlay2).addTo(map);
+   
+   
 
-      // }
-
-    
-      // load_rasters()
-
+  }
 
 
-
+  
 
 
 
-
-
-// function initComparisons() {
-//   var x, i;
-//   /*find all elements with an "overlay" class:*/
-//   x = document.getElementsByClassName("img-comp-overlay");
-//   for (i = 0; i < x.length; i++) {
-//     /*once for each "overlay" element:
-//     pass the "overlay" element as a parameter when executing the compareImages function:*/
-//     compareImages(x[i]);
-//   }
-//   function compareImages(img) {
-//     var slider, img, clicked = 0, w, h;
-//     /*get the width and height of the img element*/
-//     w = img.offsetWidth;
-//     h = img.offsetHeight;
-//     /*set the width of the img element to 50%:*/
-//     img.style.width = (w / 2) + "px";
-//     /*create slider:*/
-//     slider = document.createElement("DIV");
-//     slider.setAttribute("class", "img-comp-slider");
-//     /*insert slider*/
-//     img.parentElement.insertBefore(slider, img);
-//     /*position the slider in the middle:*/
-//     slider.style.top = (h / 2) - (slider.offsetHeight / 2) + "px";
-//     slider.style.left = (w / 2) - (slider.offsetWidth / 2) + "px";
-//     /*execute a function when the mouse button is pressed:*/
-//     slider.addEventListener("mousedown", slideReady);
-//     /*and another function when the mouse button is released:*/
-//     window.addEventListener("mouseup", slideFinish);
-//     /*or touched (for touch screens:*/
-//     slider.addEventListener("touchstart", slideReady, { passive:false});
-//     /*and released (for touch screens:*/
-//     window.addEventListener("touchend", slideFinish);
-//     function slideReady(e) {
-//       /*prevent any other actions that may occur when moving over the image:*/
-//       e.preventDefault();
-//       /*the slider is now clicked and ready to move:*/
-//       clicked = 1;
-//       /*execute a function when the slider is moved:*/
-//       window.addEventListener("mousemove", slideMove);
-//       window.addEventListener("touchmove", slideMove);
-//     }
-//     function slideFinish() {
-//       /*the slider is no longer clicked:*/
-//       clicked = 0;
-//     }
-//     function slideMove(e) {
-//       var pos;
-//       /*if the slider is no longer clicked, exit this function:*/
-//       if (clicked == 0) return false;
-//       /*get the cursor's x position:*/
-//       pos = getCursorPos(e)
-//       /*prevent the slider from being positioned outside the image:*/
-//       if (pos < 0) pos = 0;
-//       if (pos > w) pos = w;
-//       /*execute a function that will resize the overlay image according to the cursor:*/
-//       slide(pos);
-//     }
-//     function getCursorPos(e) {
-//       var a, x = 0;
-//       e = (e.changedTouches) ? e.changedTouches[0] : e;
-//       /*get the x positions of the image:*/
-//       a = img.getBoundingClientRect();
-//       /*calculate the cursor's x coordinate, relative to the image:*/
-//       x = e.pageX - a.left;
-//       /*consider any page scrolling:*/
-//       x = x - window.pageXOffset;
-//       return x;
-//     }
-//     function slide(x) {
-//       /*resize the image:*/
-//       img.style.width = x + "px";
-//       /*position the slider:*/
-//       slider.style.left = img.offsetWidth - (slider.offsetWidth / 2) + "px";
-//     }
-//   }
-// }
-
-// function slide(){
-//     let slideValue = document.getElementById("slider").value;
-
-//     document.getElementById("map").style.clipPath = "polygon(0 0," + slideValue + "% 0," + slideValue + "% 100%, 0 100%)";
-
-//     console.log("polygon(0 0," + slideValue + "% 0," + slideValue + "% 100%, 0 100%)");
-// }
    
 
 
@@ -742,6 +912,79 @@ return wmsLayer
 
 }
 
+/* side nav */
+.sidenav {
+  height: 100%;
+  position: fixed;
+  z-index: 3000;
+  top: 90px;
+  right: 0;
+  caret-color: transparent;
+}
+#mySidenav {
+  transition: width 0.3s;
+}
+.sidenav_body {
+  height: 90%;
+
+  margin-left: 20px;
+  overflow-y: scroll;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: steelblue white;
+}
+.sidenav_body::-webkit-scrollbar {
+  width: 5px;
+}
+.sidenav_body::-webkit-scrollbar-track {
+  background: white; /* color of the tracking area */
+}
+
+.sidenav_body::-webkit-scrollbar-thumb {
+  background-color: steelblue; /* color of the scroll thumb */
+  border-radius: 20px; /* roundness of the scroll thumb */
+  border: 1px solid rgb(224, 213, 193); /* creates padding around scroll thumb */
+}
+.protrusion {
+  top: 110px;
+  position: absolute;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+}
+#close {
+  margin-top: 9px;
+  margin-left: 8px;
+}
+#open {
+  margin-top: 9px;
+  margin-left: 8px;
+  transform: rotate(180deg);
+}
+@media screen and (max-height: 800px) {
+  .logos_container {
+    margin-bottom: 25px;
+    margin-top: 10px;
+  }
+}
+@media screen and (min-height: 901px) {
+  .logos_container {
+    position: absolute;
+    bottom: 0;
+    margin-left: 25%;
+  }
+}
+#mapContainer >>> .base_layer_list {
+  list-style: none;
+  font-size: 15px;
+  padding: 5px;
+}
+.side_nav_swap {
+  color: #1481c3;
+  border-bottom: solid 3px #1481c3;
+  padding-bottom: 6px;
+}
 
 
 
