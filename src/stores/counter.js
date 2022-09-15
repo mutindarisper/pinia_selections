@@ -57,7 +57,10 @@ export const useCounterStore = defineStore({
       //spinner loader
       loading:false,
       kwale_geojson:{},
-      kwale_raster: null
+      kwale_raster: null,
+      layers:[],
+      selected_layer:'',
+      selected_raster:null
 
 
 
@@ -342,6 +345,42 @@ export const useCounterStore = defineStore({
 
       }
       sendRasterRequest();
+    },
+
+    //geoserver layers
+    fetchRegionsList() {
+      this.layers = ['kiambu_clip1', 'machakos1', 'Meru', 'Embu', 'Nyeri']
+
+    },
+
+    showSelectedLayer($event){
+      var selected_layer = $event.target.value
+      console.log(selected_layer, 'selected geoserver layer')
+      // this.countries =  selected_country
+      this.selected_layer =  selected_layer
+      // console.log(this.selected_layer , 'changed geoserver layer')
+      // return selected_country
+      var data = this.selected_layer
+      // console.log(data, 'data')
+
+      const fetchKwaleRequest = async () => {
+        try {
+          const response = await axios.get('http://localhost:8005/geoserver/rasters/wms?')
+          this.selected_raster= response.data
+          console.log(response.data, 'kwale raster')
+          // return response.data
+
+
+          //fetch raster
+        
+
+        } catch (error) {
+          console.log('could not fetch data'+error)
+          
+        }
+      }
+      fetchKwaleRequest();  
+
     }
   },
 
@@ -354,7 +393,9 @@ export const useCounterStore = defineStore({
     getChartOptions:(state)=>state.testData.options,
     getLoadingState:(state)=> state.loading,
     getKwale:(state)=>state.kwale_geojson,
-    getKwaleRaster:(state)=>state.kwale_raster
+    getSelectedLayerName:(state)=>state.selected_layer,
+    getKwaleRaster:(state)=>state.kwale_raster,
+    getSelectRaster:(state)=>state.selected_raster
   
     
   },

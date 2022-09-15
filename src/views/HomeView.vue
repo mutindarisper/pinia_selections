@@ -26,6 +26,18 @@
      <option v-for="country in storeUserSelections.countries" :key="country">{{ country}}</option>
    </select>
 
+   <!-- geoserver layers selections -->
+   <p class="select_country2">Select layers</p>
+    <select name="" id="country2_selection" @click="storeUserSelections.fetchRegionsList"
+     @input="storeUserSelections.showSelectedLayer"
+     
+     >
+
+     <option>{{ storeUserSelections.placeholder}}</option>
+  
+     <option v-for="layer in storeUserSelections.layers" :key="layer">{{ layer}}</option>
+   </select>
+
 
 
 <!-- <img id="first_img" src="../assets/img_1.PNG">
@@ -79,8 +91,8 @@
   @click="load_stats()">
   Load stats</button>
 
-  <button type="button" class="fetch" @click="storeUserSelections.fetchKwale">Fetch</button>
-  <button type="button" class="fetch1" @click="load_rasters">Fetch raster</button>
+  <!-- <button type="button" class="fetch" @click="storeUserSelections.fetchKwale">Fetch</button>
+  <button type="button" class="fetch1" @click="load_rasters">Fetch raster</button> -->
 
   <!-- uploading a custom shapefile -->
   <form action='#' @submit="false">
@@ -410,7 +422,7 @@ onMounted(() => {
             opacity: 0.8
           },
           pane: 'left'
-           }).addTo(map)
+           })//.addTo(map)
 
 
            map.fitBounds(kiambu.getBounds(), {
@@ -455,7 +467,7 @@ kiambu_points.value = L.geoJSON(kiambuPoints, {
           })
  
 
-          kiambu_points.value.addTo(map)
+          // kiambu_points.value.addTo(map)
       //  right_pane = selectedPoints 
 
            map.fitBounds(kiambu_points.value.getBounds(), {
@@ -673,30 +685,31 @@ watch( setSelectedRegion_ , () => {
   
 })
 
-// const getKwaleCarbonatites = () => {
+const getKwaleRaster = () => {
 
-
+var selectedLayer= storeUserSelections.getSelectedLayerName
+console.log(selectedLayer, 'selected geoserver layer home')
                 
-//   var kwaleRaster = storeUserSelections.getKwaleRaster
-//   var wmsLayer = L.tileLayer.wms(kwaleRaster, {
-//         pane: 'rasters',
-//     // transparent: true,  
-//     //    format: 'image/png',
-//     // layers: 'rasters:kwale_tif',
-//     // tiles: true,  
-// });
-// wmsLayer.addTo(map);
+  // var kwaleRaster = storeUserSelections.getSelectRaster
+  var wmsLayer = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+        // pane: 'rasters',
+        layers: `rasters:${selectedLayer}`,
+        format: 'image/png',
+        transparent: true,  
+        opacity:1
+});
+wmsLayer.addTo(map);
 
-// }
+}
 
 
-// const setSelectedRaster = computed( () => {
-//   return storeUserSelections.getKwaleRaster
-// })
-// watch( setSelectedRaster , () => {
-//   getKwaleCarbonatites()
+const setSelectedRaster = computed( () => {
+  return storeUserSelections.getSelectRaster
+})
+watch( setSelectedRaster , () => {
+  getKwaleRaster()
   
-// })
+})
 
 const load_rasters = () => {
            console.log("loading raster!")
@@ -800,10 +813,28 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
   border-radius: 15px;
   border: 2px rgb(4, 87, 134) solid ;
 }
+
+#country2_selection{
+  position: absolute;
+  top: 3.5vh;
+  left: 45vw;
+  width: 7vw;
+  height: 3vh;
+  border-radius: 15px;
+  border: 2px rgb(4, 87, 134) solid ;
+}
 .select_country{ 
   position: absolute;
   top: 1vh;
   /* left: 0.5vw; */
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-weight: bold;
+}
+
+.select_country2{ 
+  position: absolute;
+  top: 1vh;
+  left: 45vw;
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   font-weight: bold;
 }
