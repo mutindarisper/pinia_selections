@@ -365,9 +365,11 @@ export const useCounterStore = defineStore({
 
       const fetchKwaleRequest = async () => {
         try {
+          this.loading = true
           const response = await axios.get('http://localhost:8005/geoserver/rasters/wms?')
           this.selected_raster= response.data
           console.log(response.data, 'kwale raster')
+          this.loading = false;
           // return response.data
 
 
@@ -394,8 +396,10 @@ export const useCounterStore = defineStore({
 
       const fetchKwaleRequest = async () => {
         try {
+          this.loading = true;
           const response = await axios.get('http://localhost:8005/geoserver/rasters/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=rasters%3A'+data+'&maxFeatures=50&outputFormat=application%2Fjson')
           this.current_geoserver_geojson= response.data
+           this.loading = false;
           console.log(response.data, 'geoserver geojson')
           // return response.data
 

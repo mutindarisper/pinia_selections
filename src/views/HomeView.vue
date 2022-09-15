@@ -10,6 +10,10 @@
             <img src="../assets/loader.svg" alt="">
         </div>
 
+        <div  class="spinner" v-if="raster_loader">
+            <img src="../assets/loader.svg" alt="">
+        </div>
+
 
 
 
@@ -293,11 +297,13 @@ const storeUserSelections = useCounterStore()
 console.log(storeUserSelections.getLoadingState, 'getLoadingState')
 
 
+
 let map;
 let map_;
 let places = ref([]);
 let charts = ref(false);
 let loading = ref(false)
+let raster_loader = ref(false)
 let wmsLayer= ref(null);
 let kiambu;
 var kiambu_points = ref(null)
@@ -811,8 +817,11 @@ const load_rasters = () => {
 
 // return wmsLayer
 // wmsLayer.value.bringToFront();
-// loading = true
+
+
+
 const wmsURL = "http://78.141.234.158/geoserver/kenyadata/wms";
+raster_loader.value = true
 
         wmsLayer.value = L.tileLayer
           .wms(wmsURL, {
@@ -822,7 +831,8 @@ const wmsURL = "http://78.141.234.158/geoserver/kenyadata/wms";
             opacity: 1,
           })
           .addTo(map);
-          // loading = false
+          raster_loader.value = false
+          console.log(raster_loader.value, 'get raster LoadingState')
 
 
       }
