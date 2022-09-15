@@ -39,6 +39,19 @@
    </select>
 
 
+   <!-- fetch geoserver geojsons -->
+   <p class="select_country3">Select geoserver region</p>
+    <select name="" id="country3_selection" @click="storeUserSelections.fetchGeoserverList"
+     @input="storeUserSelections.showSelectedGeoserverLayer"
+     
+     >
+
+     <option>{{ storeUserSelections.placeholder}}</option>
+  
+     <option v-for="region in storeUserSelections.geoserver_regions" :key="region">{{ region}}</option>
+   </select>
+
+
 
 <!-- <img id="first_img" src="../assets/img_1.PNG">
 
@@ -279,11 +292,12 @@ let map_;
 let places = ref([]);
 let charts = ref(false);
 let loading = ref(false)
-let wmsLayer;
+let wmsLayer= ref(null);
 let kiambu;
 var kiambu_points = ref(null)
 let sidebar = ref(null)
 let show_sidenav = ref(false)
+let current_geoserver_geojson = ref(null)
 let show_search = ref(false)
 let search = ref("")
 let analysis_swap_toggle = "data_analysis"
@@ -687,18 +701,20 @@ watch( setSelectedRegion_ , () => {
 
 const getKwaleRaster = () => {
 
+  if(wmsLayer.value)map.removeLayer(wmsLayer.value)
+
 var selectedLayer= storeUserSelections.getSelectedLayerName
 console.log(selectedLayer, 'selected geoserver layer home')
                 
   // var kwaleRaster = storeUserSelections.getSelectRaster
-  var wmsLayer = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+  wmsLayer.value = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
         // pane: 'rasters',
         layers: `rasters:${selectedLayer}`,
         format: 'image/png',
         transparent: true,  
         opacity:1
 });
-wmsLayer.addTo(map);
+wmsLayer.value.addTo(map);
 
 }
 
@@ -708,6 +724,42 @@ const setSelectedRaster = computed( () => {
 })
 watch( setSelectedRaster , () => {
   getKwaleRaster()
+  
+})
+
+
+
+const getGeoserverGeojsons = () => {
+  if(current_geoserver_geojson.value)map.removeLayer(current_geoserver_geojson.value)
+  if(wmsLayer.value)map.removeLayer(wmsLayer.value)
+  var regions = storeUserSelections.getSelectedGeoserverRegion
+
+ // console.log(region)
+ current_geoserver_geojson.value = L.geoJSON( regions, {
+         style: {
+           color: "black",
+           opacity: 0.8
+         },
+        //  pane: 'left'
+          })
+ 
+
+          current_geoserver_geojson.value.addTo(map)
+
+           map.fitBounds(current_geoserver_geojson.value.getBounds(), {
+                           padding: [50, 50],
+                         }); 
+
+}
+
+
+
+const setSelectedGeoserverRegion = computed( () => {
+  return storeUserSelections.getSelectedGeoserverRegion
+})
+
+ watch( setSelectedGeoserverRegion , () => {
+  getGeoserverGeojsons()
   
 })
 
@@ -817,7 +869,16 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
 #country2_selection{
   position: absolute;
   top: 3.5vh;
-  left: 45vw;
+  left: 52vw;
+  width: 7vw;
+  height: 3vh;
+  border-radius: 15px;
+  border: 2px rgb(4, 87, 134) solid ;
+}
+#country3_selection{
+  position: absolute;
+  top: 3.5vh;
+  left: 42vw;
   width: 7vw;
   height: 3vh;
   border-radius: 15px;
@@ -834,7 +895,15 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
 .select_country2{ 
   position: absolute;
   top: 1vh;
-  left: 45vw;
+  left: 52vw;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-weight: bold;
+}
+
+.select_country3{ 
+  position: absolute;
+  top: 1vh;
+  left: 42vw;
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   font-weight: bold;
 }
@@ -861,7 +930,7 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
   position: absolute;
   top: 10.5vh;
   left: 30vw;
-  width: 10vw;
+  width: 7vw;
   height: 3vh;
   border-radius: 15px;
 

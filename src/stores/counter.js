@@ -10,7 +10,7 @@ export const useCounterStore = defineStore({
     counter: 0,
     placeholder: 'select region',
     countries: [],
-    selected_region: 'Kiambu',
+    selected_region: '',
     current_geojson:{},
     cause_placeholder: 'select cause',
     causes:[],
@@ -18,13 +18,6 @@ export const useCounterStore = defineStore({
     current_point_geojson:{},
       //chart
       testData:{
-        // labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
-        // datasets: [
-        //   {
-        //     data: [30, 40, 60, 70, 5],
-        //     backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
-        //   },
-        // ],
         color_info_fromServer:{},
           names_candidates:[],
           chartDataFromServer:[],
@@ -60,7 +53,10 @@ export const useCounterStore = defineStore({
       kwale_raster: null,
       layers:[],
       selected_layer:'',
-      selected_raster:null
+      selected_raster:null,
+      geoserver_regions:[],
+      selected_geoserver_region: '',
+      current_geoserver_geojson:{}
 
 
 
@@ -347,9 +343,16 @@ export const useCounterStore = defineStore({
       sendRasterRequest();
     },
 
-    //geoserver layers
+    //geoserver raster layers
     fetchRegionsList() {
       this.layers = ['kiambu_clip1', 'machakos1', 'Meru', 'Embu', 'Nyeri']
+
+    },
+
+    //fetch geoserver geojsons
+
+    fetchGeoserverList() {
+      this.geoserver_regions = ['kiambu', 'machakos', 'Meru', 'Embu', 'Nyeri']
 
     },
 
@@ -381,6 +384,35 @@ export const useCounterStore = defineStore({
       }
       fetchKwaleRequest();  
 
+    },
+    showSelectedGeoserverLayer($event){
+      var selected_layer = $event.target.value
+      console.log(selected_layer, 'selected region name')
+      // this.countries =  selected_country
+      this.selected_geoserver_region =  selected_layer
+      // console.log(this.selected_layer , 'changed geoserver layer')
+      // return selected_country
+      var data =  this.selected_geoserver_region
+      console.log(data, 'data name')
+
+      const fetchKwaleRequest = async () => {
+        try {
+          const response = await axios.get('http://localhost:8005/geoserver/rasters/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=rasters%3A'+data+'&maxFeatures=50&outputFormat=application%2Fjson')
+          this.current_geoserver_geojson= response.data
+          console.log(response.data, 'geoserver geojson')
+          // return response.data
+
+
+          //fetch raster
+        
+
+        } catch (error) {
+          console.log('could not fetch data'+error)
+          
+        }
+      }
+      fetchKwaleRequest();  
+
     }
   },
 
@@ -395,7 +427,10 @@ export const useCounterStore = defineStore({
     getKwale:(state)=>state.kwale_geojson,
     getSelectedLayerName:(state)=>state.selected_layer,
     getKwaleRaster:(state)=>state.kwale_raster,
-    getSelectRaster:(state)=>state.selected_raster
+    getSelectRaster:(state)=>state.selected_raster,
+    //geoserver geojsons
+    getSelectedGeoserverRegion:(state)=>state.selected_geoserver_region,
+    getSelectedGeoserverRegion:(state)=>state.current_geoserver_geojson
   
     
   },
