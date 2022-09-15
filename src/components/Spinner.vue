@@ -38,8 +38,8 @@ import { defineComponent } from "vue"
      top:50vh;
      left: 30vw;  */
     display: inline-block;
-    width: 480px;
-    height: 480px;
+    width: 180px;
+    height: 180px;
   }
   .lds-dual-ring:after {
     content: " ";

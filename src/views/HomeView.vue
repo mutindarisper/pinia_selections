@@ -7,8 +7,9 @@
 
 
   <div  class="spinner" v-if="loading">
-            <Spinner />
+            <img src="../assets/loader.svg" alt="">
         </div>
+
 
 
 
@@ -1055,8 +1056,8 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
 }
 .spinner{
   position:absolute;
-  top: 45vh;
-  left: 72vw;
+  top: 37vh;
+  left: 27vw;
   z-index: 1500;
   /* background-color: black; */
   width: 500px;
