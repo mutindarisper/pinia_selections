@@ -6,13 +6,13 @@
   <br>
 
 
-  <div ref="loading" class="spinner" v-if="loading">
+  <div  class="spinner" v-if="loading">
             <Spinner />
         </div>
 
 
 
-        <!-- <div v-else> -->
+        <!-- <div v-else>    -->
           <div class="analysis_selections">
    
    <p class="select_country">Select Region</p>
@@ -104,8 +104,8 @@
   @click="load_stats()">
   Load stats</button>
 
-  <!-- <button type="button" class="fetch" @click="storeUserSelections.fetchKwale">Fetch</button>
-  <button type="button" class="fetch1" @click="load_rasters">Fetch raster</button> -->
+  <!-- <button type="button" class="fetch" @click="storeUserSelections.fetchKwale">Fetch</button> -->
+  <button type="button" class="fetch1" @click="load_rasters">Fetch raster</button>
 
   <!-- uploading a custom shapefile -->
   <form action='#' @submit="false">
@@ -278,13 +278,18 @@ import "leaflet-sidebar-v2";
 import { close_nav, open_nav } from "../Helpers/SideNavControls";
 import SideNavLogos from "../views/SideNavLogos.vue"
 
+//spinner
+import useSpinner from 'use-spinner';
+
+import 'use-spinner/assets/use-spinner.css';
+
 
 
 var baseurl = 'http://45.63.48.25:8080'
 
 const storeUserSelections = useCounterStore()
 
-// console.log(storeUserSelections.getSelectedCause, 'getSelectedCause')
+console.log(storeUserSelections.getLoadingState, 'getLoadingState')
 
 
 let map;
@@ -439,9 +444,9 @@ onMounted(() => {
            })//.addTo(map)
 
 
-           map.fitBounds(kiambu.getBounds(), {
-                            padding: [50, 50],
-                          }); 
+          //  map.fitBounds(kiambu.getBounds(), {
+          //                   padding: [50, 50],
+          //                 }); 
   
            
         } catch (err) {
@@ -484,9 +489,9 @@ kiambu_points.value = L.geoJSON(kiambuPoints, {
           // kiambu_points.value.addTo(map)
       //  right_pane = selectedPoints 
 
-           map.fitBounds(kiambu_points.value.getBounds(), {
-                           padding: [50, 50],
-                         }); 
+          //  map.fitBounds(kiambu_points.value.getBounds(), {
+          //                  padding: [50, 50],
+          //                }); 
  
   console.log(response.data, 'point data')
   return response.data
@@ -574,7 +579,7 @@ function receiveBinary() {
 
 const getRegion = () => {  
  
-  // loading.value = storeUserSelections.getLoadingState
+  // loading = true
   // console.log(loading.value, 'loading')
   if(kiambu)map.removeLayer(kiambu)
   if(kiambu_points.value)map.removeLayer(kiambu_points.value)
@@ -582,6 +587,7 @@ const getRegion = () => {
   if(current_point_geojson.value)map.removeLayer(current_point_geojson.value)
 
   var selecteRegion = storeUserSelections.getSelectedRegion
+  // loading = storeUserSelections.getLoadingState
  
   // console.log(region)
   current_geojson.value = L.geoJSON(selecteRegion, {
@@ -594,7 +600,7 @@ const getRegion = () => {
   
 
   current_geojson.value.addTo(map)
-left_pane = selecteRegion
+// loading = false
 
             map.fitBounds(current_geojson.value.getBounds(), {
                             padding: [50, 50],
@@ -602,8 +608,18 @@ left_pane = selecteRegion
   
 }
 
+
+
+// // wrap your asynchronous function
+// const spinnedFn =  async () => useSpinner(getRegion, {
+//   container: 'map'
+// });
+
+// // execute with a loading spinner
+// await spinnedFn();
+
 const getPoints = () => {  
-  loading.value = storeUserSelections.getLoadingState
+  // loading.value = storeUserSelections.getLoadingState
   if(kiambu_points.value)map.removeLayer(kiambu_points.value)
  if(current_point_geojson.value)map.removeLayer(current_point_geojson.value)
 
@@ -728,7 +744,7 @@ watch( setSelectedRaster , () => {
 })
 
 
-
+//fetch geoserver kiambu and machakos geojsons
 const getGeoserverGeojsons = () => {
   if(current_geoserver_geojson.value)map.removeLayer(current_geoserver_geojson.value)
   if(wmsLayer.value)map.removeLayer(wmsLayer.value)
@@ -763,24 +779,49 @@ const setSelectedGeoserverRegion = computed( () => {
   
 })
 
+//watch state for loading
+
+const setLoadingState= computed( () => {
+  return storeUserSelections.getLoadingState
+})
+
+ watch( setLoadingState , () => {
+  console.log(storeUserSelections.getLoadingState, 'getLoadingState')
+  loading.value = storeUserSelections.getLoadingState
+  
+})
+
+
 const load_rasters = () => {
-           console.log("loading raster!")
-          //  map.createPane('rasters');
-          //  map.getPane('rasters').style.zIndex = 3000;
+//            console.log("loading raster!")
+//           //  map.createPane('rasters');
+//           //  map.getPane('rasters').style.zIndex = 3000;
 
-      wmsLayer = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
-        // pane: 'right',
-        layers: 'rasters:kiambu_clip1',
-        format: 'image/png',
-        transparent: true,  
-        opacity:1
-        // tiles: true,  
-});
-console.log(wmsLayer, 'wms layer')
-wmsLayer.addTo(map);
+//       wmsLayer = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+//         // pane: 'right',
+//         layers: 'rasters:kiambu_clip1',
+//         format: 'image/png',
+//         transparent: true,  
+//         opacity:1
+//         // tiles: true,  
+// });
+// console.log(wmsLayer, 'wms layer')
+// wmsLayer.addTo(map);
 
-return wmsLayer
+// return wmsLayer
 // wmsLayer.value.bringToFront();
+// loading = true
+const wmsURL = "http://78.141.234.158/geoserver/kenyadata/wms";
+
+        wmsLayer.value = L.tileLayer
+          .wms(wmsURL, {
+            layers:"kenyadata:suitabilityClassified,geoBoundaries-KEN-ADM0", //layerSelected, //"kenyadata:suitabilityClassified,geoBoundaries-KEN-ADM0",
+            format: "image/png",
+            transparent: "true",
+            opacity: 1,
+          })
+          .addTo(map);
+          // loading = false
 
 
       }

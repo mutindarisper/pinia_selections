@@ -19,6 +19,7 @@
     "leaflet.wms": "^0.2.0",
     "pinia": "^2.0.17",
     "shpjs": "^4.0.4",
+    "use-spinner": "^0.2.0",
     "vue": "^3.2.37",
     "vue-chart-3": "^3.1.8",
     "vue-chartjs": "^3.5.1",

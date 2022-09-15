@@ -58,10 +58,6 @@ export const useCounterStore = defineStore({
       selected_geoserver_region: '',
       current_geoserver_geojson:{}
 
-
-
-
-
   }),
  
   actions: {
@@ -118,13 +114,14 @@ export const useCounterStore = defineStore({
       if(data) {
         const sendGetRequest = async () => {
           try {
-            // this.loading = true 
+            this.loading = true;
               const resp = await  axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county='+data
               );
               
 
               this.current_geojson = resp.data
               console.log(resp.data, 'await response data');
+              this.loading = false;
               return resp.data
           } catch (err) {
               // Handle Error Here
@@ -429,7 +426,7 @@ export const useCounterStore = defineStore({
     getKwaleRaster:(state)=>state.kwale_raster,
     getSelectRaster:(state)=>state.selected_raster,
     //geoserver geojsons
-    getSelectedGeoserverRegion:(state)=>state.selected_geoserver_region,
+    getSelectedGeoserverRegionName:(state)=>state.selected_geoserver_region,
     getSelectedGeoserverRegion:(state)=>state.current_geoserver_geojson
   
     
