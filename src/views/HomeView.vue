@@ -154,7 +154,7 @@
                   <div class="q-pa-xs">
                     <div
                       class="text-weight-bolder text-h6"
-                      @click="handleAnalysisMetaSwap('data_analysis')"
+                      @click="handleAnalysisMetaSwap2()"
                       style="cursor: pointer"
                     >
                       <span
@@ -173,7 +173,7 @@
                     <div
                       class="text-weight-bolder text-h6"
                       @click="handleAnalysisMetaSwap()"
-                      style="cursor: pointer"
+                      style="cursor: pointer; position: absolute; left: 15vw; top: -3vh;"
                     >
                       <span
                         :class="
@@ -181,7 +181,7 @@
                             ? 'side_nav_swap'
                             : ''
                         "
-                        >Metadata r</span
+                        >Metadata </span
                       >
                     </div>
                   </div>
@@ -189,8 +189,8 @@
               </div>
             </div>
           </div>
-          <div  >
-            <!-- <q-btn flat label="get WMS" @click="getWMS_Layer" />     v-if="analysis_swap_toggle === 'data_analysis'"-->
+          <div  v-if="analysis_swap_toggle === 'data_analysis'" >
+            <!-- <q-btn flat label="get WMS" @click="getWMS_Layer" />    -->
 
             <p>
               {{ summary_text }}
@@ -200,8 +200,8 @@
               <div class="chart_title_sidebar"  style="font-family: 'Trebuchet MS'; font-weight: 800;">{{storeUserSelections.selected_cause}} blackspots in {{storeUserSelections.selected_region}}  </div>
             </label>
             
-            <div class="charts_sidebar" ref="charts"   v-if="charts" >
-            <!-- <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()"> -->
+            <div class="charts_sidebar"  >
+            <!-- <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()"> ref="charts"   v-if="charts" to be added later -->
             <!-- <div class="chart_title">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div> -->
             <CausesChart 
             :height="200"
@@ -218,8 +218,8 @@
               <div class="chart2_title_sidebar"  style="font-family: 'Trebuchet MS'; font-weight: 800;">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div>
             </label>
             
-            <div class="charts2_sidebar" ref="charts"   v-if="charts" >
-            <!-- <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()"> -->
+            <div class="charts2_sidebar"  >
+            <!-- <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()">  ref="charts"   v-if="charts" to be added later -->
             <!-- <div class="chart_title">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div> -->
             <CausesBar 
             :height="200"
@@ -232,6 +232,8 @@
            
           </div>
           <div class="meta" v-if="analysis_swap_toggle === 'metadata'">
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. At voluptatem debitis eum ut mollitia corrupti,
+             repellat vel a quibusdam cupiditate, eligendi qui cumque tempora? Dolorum error corrupti non eius illo!
             {{storeUserSelections.selected_cause}}
             <br> {{storeUserSelections.selected_cause}}
             <br>
@@ -316,7 +318,7 @@ let show_sidenav = ref(false)
 let current_geoserver_geojson = ref(null)
 let show_search = ref(false)
 let search = ref("")
-let analysis_swap_toggle = "data_analysis"
+let analysis_swap_toggle = ref("data_analysis") 
 let summary_text =  ` Land use land cover maps monitor the land use in a specific year. The
       integration of the biophysical and human factors plays a leading role in
       causing land-use changes, and is used to explain the dynamics of land use
@@ -392,7 +394,10 @@ const mapbox =  L.tileLayer(
       show_sidenav.value= true;
     }
     const handleAnalysisMetaSwap = () => {
-      analysis_swap_toggle = 'metadata';
+      analysis_swap_toggle.value = 'metadata';
+    }
+    const handleAnalysisMetaSwap2 = () => {
+      analysis_swap_toggle.value = 'data_analysis';
     }
 
 
