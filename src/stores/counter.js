@@ -34,8 +34,8 @@ export const useCounterStore = defineStore({
                position: 'right',
                margin: 20,
                labels:{
-                  fontColor: '#fff',
-                  fontWeight: 'bold',
+                  fontColor: '#000',
+                  fontWeight: 'bolder',
                   padding: 15,
                   usePointStyle: true,
                   pointStyle: 'circle'
@@ -47,6 +47,51 @@ export const useCounterStore = defineStore({
           
          }
       },
+
+      barchart_options: {
+        scales: {
+           xAxes: [{
+            //   stacked: true,
+              
+              
+              ticks: {
+                 beginAtZero: true,
+              
+                 fontColor: '#000',
+              },
+              gridLines: {
+                 display: false,
+                  color: '#9b9797'
+              }
+           }],
+           yAxes: [{
+            //   stacked: true,
+              
+                   barPercentage: 0.7,
+                 
+               ticks: {
+                  beginAtZero: true,
+                   
+                 // fontColor: '#2FA036',
+                 fontSize: 10,
+              },
+              gridLines: {
+                 display: true,
+                 color: '#9b9797'
+                 
+              }
+           }]
+        },
+ 
+       legend: {
+           display: false,
+       
+        },
+        
+        responsive: true,
+        maintainAspectRatio: false,
+      
+     },
       //spinner loader
       loading:false,
       kwale_geojson:{},
@@ -424,6 +469,7 @@ export const useCounterStore = defineStore({
     getSelectedCause:(state) => state.selected_cause, 
     getChartData:(state)=>state.testData.chatData_restructure,
     getChartOptions:(state)=>state.testData.options,
+    getBarChartOptions:(state)=>state.barchart_options,
     getLoadingState:(state)=> state.loading,
     getKwale:(state)=>state.kwale_geojson,
     getSelectedLayerName:(state)=>state.selected_layer,

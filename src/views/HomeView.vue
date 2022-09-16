@@ -1,9 +1,9 @@
 <template>
 <!-- <h1>Dashboard</h1> -->
-  <h2 class="selected_region">{{storeUserSelections.selected_region}}</h2>
+  <!-- <h2 class="selected_region">{{storeUserSelections.selected_region}}</h2>
   <br>
   <h3 class="selected_region">{{storeUserSelections.selected_cause}}</h3>
-  <br>
+  <br> -->
 
 
   <div  class="spinner" v-if="loading">
@@ -90,9 +90,14 @@
 
 </div>
 
- 
 
-  <div class="charts" ref="charts"   v-if="charts" >
+  <button type="button" 
+  class="stats_button"
+  @click="load_stats()">
+  Load stats</button>
+
+
+  <!-- <div class="charts" ref="charts"   v-if="charts" >
     <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()">
     <div class="chart_title">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div>
     <CausesChart 
@@ -102,21 +107,18 @@
     :options="options"
 
     />
-  </div>
+  </div> -->
 
-  <button type="button" 
-  class="stats_button"
-  @click="load_stats()">
-  Load stats</button>
 
+ 
   <!-- <button type="button" class="fetch" @click="storeUserSelections.fetchKwale">Fetch</button> -->
-  <button type="button" class="fetch1" @click="load_rasters">Fetch raster</button>
+  <!-- <button type="button" class="fetch1" @click="load_rasters">Fetch raster</button> -->
 
   <!-- uploading a custom shapefile -->
-  <form action='#' @submit="false">
+  <!-- <form action='#' @submit="false">
     <input type='file' id='fileinput'>
     <input type='button' id='btnLoad' value='Load' @click="loadFile()" >
-</form> 
+</form>  -->
 
 <button @click="compareLayer" class="compare">compare</button>
 
@@ -127,9 +129,9 @@
 
 
     <!-- leaflet side bar -->
-    <!-- <div class="side-bar-view"> -->
+    <div class="side-bar-view">
       <SideBarView />
-    <!-- </div> -->
+    </div>
 
     <div id="sidenav" class="sidenav bg-white">
       <div id="mySidenav" style="height: 100%">
@@ -187,45 +189,46 @@
               </div>
             </div>
           </div>
-          <div v-if="analysis_swap_toggle === 'data_analysis'">
-            <!-- <q-btn flat label="get WMS" @click="getWMS_Layer" /> -->
+          <div  >
+            <!-- <q-btn flat label="get WMS" @click="getWMS_Layer" />     v-if="analysis_swap_toggle === 'data_analysis'"-->
 
             <p>
               {{ summary_text }}
             </p>
             <br />
-            <label class="text-bold" style="font-family: Montserrat">
-              {{ chart_title }}
+            <label class="text-bold" style="font-family: Montserrat; font-weight: 800;">
+              <div class="chart_title_sidebar"  style="font-family: 'Trebuchet MS'; font-weight: 800;">{{storeUserSelections.selected_cause}} blackspots in {{storeUserSelections.selected_region}}  </div>
             </label>
             
-            <CausesChart
-            :height="250"
-            :width="350"
+            <div class="charts_sidebar" ref="charts"   v-if="charts" >
+            <!-- <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()"> -->
+            <!-- <div class="chart_title">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div> -->
+            <CausesChart 
+            :height="200"
+            :width="300"
             :chartData="chartData"
             :options="options"
-             
+
             />
+          </div>
 
          
             <br />
-            <label class="text-bold" style="font-family: Montserrat">
-              {{ line_chart_title }}</label
-            >
-            <!-- <LineChart
-              :Stats="stats"
-              :height="250"
-              :width="180"
-              class="q-pt-lg q-pr-lg bg-grey-2"
-            /> -->
-            <div class="chart_sidebar">
-              <CausesChart
-            :height="250"
-            :width="350"
+            <label class="text-bold" style="font-family: Montserrat; font-weight: 800;">
+              <div class="chart2_title_sidebar"  style="font-family: 'Trebuchet MS'; font-weight: 800;">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div>
+            </label>
+            
+            <div class="charts2_sidebar" ref="charts"   v-if="charts" >
+            <!-- <img class="close_chart" src="../assets/images/close_small.svg" alt="" @click="close_chart()"> -->
+            <!-- <div class="chart_title">No. of blackspots in {{storeUserSelections.selected_region}} that are {{storeUserSelections.selected_cause}}</div> -->
+            <CausesBar 
+            :height="200"
+            :width="300"
             :chartData="chartData"
-            :options="options"
-           
+            :options="barchart_options"
+
             />
-            </div>
+          </div>
            
           </div>
           <div class="meta" v-if="analysis_swap_toggle === 'metadata'">
@@ -276,6 +279,7 @@ import sideByside from "leaflet-side-by-side";
 
 
 import CausesChart from "../components/CausesChart.vue";
+import CausesBar from '../components/CausesBar.vue'
 // import leafletWms from "leaflet.wms";
 import "leaflet-sidebar-v2";
 // import "leaflet-sidebar-v2/css/leaflet-sidebar.css";
@@ -412,7 +416,7 @@ onMounted(() => {
         zoom: 6,
         // measureControl: true,
         // defaultExtentControl: true,
-        layers: mapbox
+        layers: mapboxSatellite
       }); // add the basemaps to the controls
 
       //add sidebar
@@ -510,11 +514,6 @@ kiambu_points.value = L.geoJSON(kiambuPoints, {
 }
 getPointsCause();
 
-
-
-
- 
-  
      
 
 //       var layer1 = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -559,6 +558,7 @@ getPointsCause();
 
       const chartData = storeUserSelections.getChartData
       const options = storeUserSelections.getChartOptions
+      const barchart_options = storeUserSelections.getBarChartOptions
 
      const loadFile = () => {
 
@@ -579,8 +579,6 @@ function receiveBinary() {
     shpfile.addTo(map);
 }
 }
-
-
 
      //function to get regions 
 
@@ -980,11 +978,12 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
 
 .stats_button{
   position: absolute;
-  top: 10.5vh;
+  top: 3.5vh;
   left: 30vw;
   width: 7vw;
   height: 3vh;
   border-radius: 15px;
+  z-index: 3000;
 
 }
 
@@ -1057,6 +1056,29 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
   height: 300px;
   
 }
+
+.charts_sidebar{
+  position:absolute;
+  top: 20vh;
+  /* left: 2vw; */
+  z-index: 1000;
+  background-color: #ddd;
+  width: 500px;
+  height: 240px;
+  padding: 20px;
+  
+}
+.charts2_sidebar{
+  position:absolute;
+  top: 50vh;
+  /* left: 2vw; */
+  z-index: 1000;
+  background-color: #ddd;
+  width: 500px;
+  height: 240px;
+  padding: 20px;
+  
+}
 .close_chart{
   position:absolute;
   top: 1vh;
@@ -1084,6 +1106,7 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
   top: 90px;
   right: 0;
   caret-color: transparent;
+  background-color:transparent;
 }
 #mySidenav {
   transition: width 0.3s;
