@@ -402,6 +402,7 @@ let line_chart_title = "Vegatation Cover (Histogram)"
 
 let legend = ref(null)
 let legend_url = "http://localhost:8005/geoserver/rasters/wms?REQUEST=GetLegendGraphic&VERSION=1.1.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=rasters:kiambu_clip1&legend_options=border:true;dx:10;fontSize:11"
+let swipe_control = null
 // console.log(county_data, 'reeef county')
 
 const load_stats = () => {
@@ -962,6 +963,7 @@ raster_loader.value = true
       }
 
       const compareLayer = () => {
+        if(swipe_control)map.removeControl(swipe_control)
 
   
 var overlay1 =  L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
@@ -987,7 +989,7 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
 // console.log(overlay1, 'overlay1')
 // console.log(overlay2, 'overlay2')
 
-    L.control.sideBySide(overlay1, overlay2).addTo(map);
+swipe_control = L.control.sideBySide(overlay1, overlay2).addTo(map);
    
    
 
