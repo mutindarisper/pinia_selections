@@ -101,7 +101,8 @@ export const useCounterStore = defineStore({
       selected_raster:null,
       geoserver_regions:[],
       selected_geoserver_region: '',
-      current_geoserver_geojson:{}
+      current_geoserver_geojson:{},
+      crs:""
 
   }),
  
@@ -167,6 +168,8 @@ export const useCounterStore = defineStore({
               this.current_geojson = resp.data
               console.log(resp.data, 'await response data');
               this.loading = false;
+              this.crs = resp.data.crs.properties.name
+              console.log(crs, 'crs')
               return resp.data
           } catch (err) {
               // Handle Error Here

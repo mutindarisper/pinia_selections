@@ -7,7 +7,7 @@
 
 
   <div  class="spinner" v-if="loading">
-            <img src="../assets/loader.svg" alt="">
+            <img src="../assets/images/loader_white.svg" alt="">
         </div>
 
         <div  class="spinner" v-if="raster_loader">
@@ -93,8 +93,8 @@
 
   <button type="button" 
   class="stats_button"
-  @click="load_stats()">
-  Load stats</button>
+  @click="createLegend()">
+  Load legend</button>
 
 
   <!-- <div class="charts" ref="charts"   v-if="charts" >
@@ -120,7 +120,7 @@
     <input type='button' id='btnLoad' value='Load' @click="loadFile()" >
 </form>  -->
 
-<button @click="compareLayer" class="compare">compare</button>
+<img src="../assets/swap.svg" @click="compareLayer" class="compare"/>
 
   <!-- <input type="range" min="0" max="100" value="50" id="slider" @input="slide">   -->
 
@@ -232,14 +232,75 @@
            
           </div>
           <div class="meta" v-if="analysis_swap_toggle === 'metadata'">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. At voluptatem debitis eum ut mollitia corrupti,
-             repellat vel a quibusdam cupiditate, eligendi qui cumque tempora? Dolorum error corrupti non eius illo!
-            {{storeUserSelections.selected_cause}}
-            <br> {{storeUserSelections.selected_cause}}
-            <br>
-            {{storeUserSelections.selected_region}}
-              <br>
-              {{storeUserSelections.selected_cause}}
+          
+
+
+              <table style="width:100%">
+                  <tr>
+                    <th>Region</th>
+                    <td> {{storeUserSelections.selected_region}}</td>
+                    
+                  </tr>
+                  <tr>
+                    <th>Cause</th>
+      
+                    <td>{{storeUserSelections.selected_cause}}</td>
+                  </tr>
+                  <tr>
+                    <th>CRS</th>
+                    <td>{{storeUserSelections.crs}}</td>
+                    
+                  </tr>
+                  <tr>
+                    <th>Region</th>
+                    <td> {{storeUserSelections.selected_region}}</td>
+                    
+                  </tr>
+                  <tr>
+                    <th>Cause</th>
+      
+                    <td>{{storeUserSelections.selected_cause}}</td>
+                  </tr>
+                  <tr>
+                    <th>CRS</th>
+                    <td>{{storeUserSelections.crs}}</td>
+                    
+                  </tr>
+                  <tr>
+                    <th>Region</th>
+                    <td> {{storeUserSelections.selected_region}}</td>
+                    
+                  </tr>
+                  <tr>
+                    <th>Cause</th>
+      
+                    <td>{{storeUserSelections.selected_cause}}</td>
+                  </tr>
+                  <tr>
+                    <th>CRS
+                      
+                    </th>
+                    
+                    <td>
+                      <table>
+                        <tr>
+                          <th>Region</th>
+                          <td>{{storeUserSelections.selected_region}}</td>
+                        </tr>
+                        <tr>
+                          <th>Cause</th>
+                          <td>{{storeUserSelections.selected_cause}}</td>
+                        </tr>
+                        <tr>
+                          <th>CRS</th>
+                          <td>{{storeUserSelections.crs}}</td>
+                        </tr>
+                      </table>
+                    </td>
+                    
+                    
+                  </tr>
+                </table>
           </div>
           <!-- <LineChart :height="250" :width="250" /> -->
           <div class="logos_container row">
@@ -294,6 +355,9 @@ import useSpinner from 'use-spinner';
 
 import 'use-spinner/assets/use-spinner.css';
 
+import "leaflet-geoserver-request";
+import "leaflet-geoserver-request/src/L.Geoserver.js"
+
 
 
 var baseurl = 'http://45.63.48.25:8080'
@@ -327,6 +391,9 @@ let summary_text =  ` Land use land cover maps monitor the land use in a specifi
       its sustainability.`
 let chart_title = "title"
 let line_chart_title = "Vegatation Cover (Histogram)"
+
+let legend = ref(null)
+let legend_url = "http://localhost:8005/geoserver/rasters/wms?REQUEST=GetLegendGraphic&VERSION=1.1.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=rasters:kiambu_clip1&legend_options=border:true;dx:10;fontSize:11"
 // console.log(county_data, 'reeef county')
 
 const load_stats = () => {
@@ -620,14 +687,6 @@ const getRegion = () => {
 
 
 
-// // wrap your asynchronous function
-// const spinnedFn =  async () => useSpinner(getRegion, {
-//   container: 'map'
-// });
-
-// // execute with a loading spinner
-// await spinnedFn();
-
 const getPoints = () => {  
   // loading.value = storeUserSelections.getLoadingState
   if(kiambu_points.value)map.removeLayer(kiambu_points.value)
@@ -662,9 +721,6 @@ const getPoints = () => {
                          }); 
  
 }
-
-
-
 
 //watch for changes
 
@@ -742,7 +798,58 @@ console.log(selectedLayer, 'selected geoserver layer home')
 });
 wmsLayer.value.addTo(map);
 
+
+
+
+
+
+
+
+// var layerLegend = L.Geoserver.legend("http://localhost:8005/geoserver/rasters/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=rasters:kiambu_clip1&legend_options=border:true;dx:10;fontSize:11;&width=20&height=20&format=image/png");
+// console.log(layerLegend, 'layer legend')
+// layerLegend.addTo(map);
+
+
 }
+const createLegend = () => {
+  // if (legend.value) {
+  //       map.removeControl(legend.value); //destroy legend everytime new data come in
+  //     }
+  var legend  = L.control({
+        position: "bottomright",
+        name: storeUserSelections.selected_region,
+      });
+      legend.onAdd = (map) => {
+        //create legend based on data, translatios have been included
+        let div = L.DomUtil.create("div", "legend");
+        div.innerHTML += `<div > 
+        <img src="http://localhost:8005/geoserver/rasters/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=rasters:kiambu_clip1&legend_options=border:true;dx:10;fontSize:11;&width=20&height=20&format=image/png" />
+       
+        </div >`;
+
+        // let draggable = new L.Draggable(div); //the legend can be dragged around the div
+        // draggable.enable();
+        return div;
+      };
+      console.log(legend, 'LEGEND')
+      legend.addTo(map);
+
+//   var legend_ = L.control({position: 'bottomright'});
+// legend_.onAdd = function (map) {
+//   let div = L.DomUtil.create("div", "legend");
+//         div.innerHTML +=
+//         '<img src="http://localhost:8005/geoserver/rasters/wms?REQUEST=GetLegendGraphic&VERSION=1.1.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=rasters:kiambu_clip1&legend_options=border:true;dx:10;fontSize:11">';
+//     return div;
+    
+//     };
+//     // http://localhost:8005/geoserver/rasters/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=rasters:kiambu_clip1&legend_options=border:true;dx:10;fontSize:11;&width=20&height=20&format=image/png/
+
+//     legend_.addTo(map);
+//     console.log('legend loaded')
+
+}
+// createLegend();
+
 
 
 const setSelectedRaster = computed( () => {
@@ -871,7 +978,24 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
    
 
   }
+//   const show_legend = ()  =>{
 
+// var layerLegend = L.Geoserver.legend("http://localhost:8005/geoserver/wms", {
+// layers: "air_quality_rasters:NO2-2019-NAI_test",
+// request: 'GetLegendGraphic',
+//  version: 1.0,
+//      //pane: 'rasters',
+// transparent: true,  
+//    format: 'image/png',
+//    width: 20,
+//    height: 20,
+// style: `Raster_Legend`,
+
+// });
+
+// layerLegend.addTo(this.map);
+
+// }
 
   
 
@@ -1014,11 +1138,14 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
 
 .compare{
   position: absolute;
-  top: 78.5vh;
-  left: 47vw;
-  width: 7vw;
-  height: 3vh;
+  top: 12.5vh;
+  left: 60vw;
+  width: 20px;
+  height: 20px;
   border-radius: 15px;
+  z-index: 3000;
+  background-color: #fff;
+  cursor: pointer;
 
 }
 
@@ -1176,6 +1303,30 @@ var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
   color: #1481c3;
   border-bottom: solid 3px #1481c3;
   padding-bottom: 6px;
+  font-weight: bolder;
+  font-size: 18px;
+}
+
+
+table, th, td {
+  border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px;
+    margin-top: 20px;
+}
+
+
+th{
+  font-weight: bolder;
+}
+
+tr:nth-child(even) {
+  background-color: #ddd;
+}
+table {
+    border-collapse: separate;
+    text-indent: initial;
+    border-spacing: 2px;
 }
 
 
