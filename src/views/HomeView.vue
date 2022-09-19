@@ -75,6 +75,14 @@
 
  </div>
 
+
+ <select id="select2">
+<option>Choose Two</option>
+<option value="1">Val 1</option>
+<option value="2">Val 2</option>
+<option value="3">Val 3</option> 
+</select>
+
         <!-- </div> -->
 
 
@@ -329,7 +337,7 @@ import axios from 'axios'
 import Spinner from "../components/Spinner.vue";
 import SideBarView from "../views/SideBarView.vue"
 
-// import $ from "jquery";
+import $ from "jquery";
 
 // import VueCompareImage from "vue-compare-image";
 import "vue-compare-image"
@@ -725,6 +733,12 @@ const getPoints = () => {
 //watch for changes
 
 const setSelectedRegion = computed( () => {
+  console.log(storeUserSelections.selected_region, 'selected_country homeviiew')
+  if(storeUserSelections.selected_region === 'Nyeri'){
+      $("#select2").show();
+    }else{
+      $("#select2").hide();
+    }
   return storeUserSelections.getSelectedRegion
 })
 
@@ -1327,6 +1341,10 @@ table {
     border-collapse: separate;
     text-indent: initial;
     border-spacing: 2px;
+}
+
+#select2{
+    display: none;
 }
 
 
