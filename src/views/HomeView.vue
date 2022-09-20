@@ -311,6 +311,7 @@
                 </table>
           </div>
           <!-- <LineChart :height="250" :width="250" /> -->
+          <p class="partners" style="font-weight:bold;font-size:16px;position: relative;top:53vh;left: 8vw;" >Technical Partners</p>
           <div class="logos_container row">
             <SideNavLogos />
           </div>
@@ -383,6 +384,7 @@ let charts = ref(false);
 let loading = ref(false)
 let raster_loader = ref(false)
 let wmsLayer= ref(null);
+let wmsLayerCompare= ref(null);
 let kiambu;
 var kiambu_points = ref(null)
 let sidebar = ref(null)
@@ -510,90 +512,94 @@ onMounted(() => {
       map.createPane('left');
       map.createPane('right');
 
-      var selecteRegion = storeUserSelections.fetchKiambuCounty
-      console.log(selecteRegion, 'kiambu')
+
+
+      //to be returned when necessary
+
+//       var selecteRegion = storeUserSelections.fetchKiambuCounty
+//       console.log(selecteRegion, 'kiambu')
 
 
 
 
-      const sendGetRequest = async () => {
-        try {
-          // this.loading = true 
-            const resp = await  axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county=Kiambu'
-            );
+//       const sendGetRequest = async () => {
+//         try {
+//           // this.loading = true 
+//             const resp = await  axios.get(baseurl+'/AdminData/get_adm1_shapefile?Get_county=Kiambu'
+//             );
             
 
-            // this.current_geojson = resp.data
-            console.log(resp.data, 'await kiambu response data');
-            var selecteRegion = resp.data
-            // console.log(region)
- kiambu = L.geoJSON(selecteRegion, {
-          style: {
-            color: "black",
-            opacity: 0.8
-          },
-          pane: 'left'
-           })//.addTo(map)
+//             // this.current_geojson = resp.data
+//             console.log(resp.data, 'await kiambu response data');
+//             var selecteRegion = resp.data
+//             // console.log(region)
+//  kiambu = L.geoJSON(selecteRegion, {
+//           style: {
+//             color: "black",
+//             opacity: 0.8
+//           },
+//           pane: 'left'
+//            })//.addTo(map)
 
 
-          //  map.fitBounds(kiambu.getBounds(), {
-          //                   padding: [50, 50],
-          //                 }); 
+//           //  map.fitBounds(kiambu.getBounds(), {
+//           //                   padding: [50, 50],
+//           //                 }); 
   
            
-        } catch (err) {
-            // Handle Error Here
-            console.error('an error occured'+err);
-        }
-        // finally  { if (this.current_geojson)this.loading = false
+//         } catch (err) {
+//             // Handle Error Here
+//             console.error('an error occured'+err);
+//         }
+//         // finally  { if (this.current_geojson)this.loading = false
       
-        // }
-        // return resp.data
-    };
-    sendGetRequest();
+//         // }
+//         // return resp.data
+//     };
+//     sendGetRequest();
 
 
-    const getPointsCause = async () => {
+//     const getPointsCause = async () => {
 
-try {
-  const response = await axios.get(baseurl+'/HotSpots/get_hotspot_per_county/?hotspot_per_cause=Infrastructural&county=Kiambu'
-  );
-  var kiambuPoints= response.data
-kiambu_points.value = L.geoJSON(kiambuPoints, {
-  // pane: 'right',
+// try {
+//   const response = await axios.get(baseurl+'/HotSpots/get_hotspot_per_county/?hotspot_per_cause=Infrastructural&county=Kiambu'
+//   );
+//   var kiambuPoints= response.data
+// kiambu_points.value = L.geoJSON(kiambuPoints, {
+//   // pane: 'right',
 
 
-              pointToLayer: function (feature, latlng){
+//               pointToLayer: function (feature, latlng){
 
-                var studioicon = L.icon({
-                                                iconUrl: "/src/assets/images/marker.svg",
-                                                iconSize: [30, 30],
-                                                iconAnchor: [15,15]
-                                              });
-            return L.marker(latlng, {icon: studioicon});
-              }
+//                 var studioicon = L.icon({
+//                                                 iconUrl: "/src/assets/images/marker.svg",
+//                                                 iconSize: [30, 30],
+//                                                 iconAnchor: [15,15]
+//                                               });
+//             return L.marker(latlng, {icon: studioicon});
+//               }
 
 
         
-          })
+//           })
  
 
-          // kiambu_points.value.addTo(map)
-      //  right_pane = selectedPoints 
+//           // kiambu_points.value.addTo(map)
+//       //  right_pane = selectedPoints 
 
-          //  map.fitBounds(kiambu_points.value.getBounds(), {
-          //                  padding: [50, 50],
-          //                }); 
+//           //  map.fitBounds(kiambu_points.value.getBounds(), {
+//           //                  padding: [50, 50],
+//           //                }); 
  
-  console.log(response.data, 'point data')
-  return response.data
+//   console.log(response.data, 'point data')
+//   return response.data
   
-} catch (error) {
-  console.error('an error occured'+error);
+// } catch (error) {
+//   console.error('an error occured'+error);
   
-}
-}
-getPointsCause();
+// }
+// }
+// getPointsCause();
 
      
 
@@ -805,13 +811,43 @@ console.log(selectedLayer, 'selected geoserver layer home')
                 
   // var kwaleRaster = storeUserSelections.getSelectRaster
   wmsLayer.value = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
-        // pane: 'rasters',
-        layers: `rasters:${selectedLayer}`,
+        pane: 'left',
+        layers: 'rasters:kiambu_clip1',
         format: 'image/png',
         transparent: true,  
         opacity:1
 });
 wmsLayer.value.addTo(map);
+
+
+
+
+
+
+
+
+// var layerLegend = L.Geoserver.legend("http://localhost:8005/geoserver/rasters/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=rasters:kiambu_clip1&legend_options=border:true;dx:10;fontSize:11;&width=20&height=20&format=image/png");
+// console.log(layerLegend, 'layer legend')
+// layerLegend.addTo(map);
+
+
+}
+const getKwaleRaster2 = () => {
+
+if(wmsLayerCompare.value)map.removeLayer(wmsLayerCompare.value)
+
+var selectedLayer= storeUserSelections.getSelectedLayerName
+console.log(selectedLayer, 'selected geoserver layer home')
+              
+// var kwaleRaster = storeUserSelections.getSelectRaster
+wmsLayerCompare.value = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+      pane: 'right',
+      layers: 'rasters:kiambu_clip2',
+      format: 'image/png',
+      transparent: true,  
+      opacity:1
+});
+wmsLayerCompare.value.addTo(map);
 
 
 
@@ -871,7 +907,8 @@ const setSelectedRaster = computed( () => {
   return storeUserSelections.getSelectRaster
 })
 watch( setSelectedRaster , () => {
-  getKwaleRaster()
+  getKwaleRaster();
+  getKwaleRaster2();
   
 })
 
@@ -966,30 +1003,30 @@ raster_loader.value = true
         if(swipe_control)map.removeControl(swipe_control)
 
   
-var overlay1 =  L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
-        pane: 'right',
-        layers: 'rasters:kwale_tif',
-        format: 'image/png',
-        transparent: true,  
-        opacity:1
-        // tiles: true,  
-}).addTo(map);
+// var overlay1 =  L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+//         pane: 'right',
+//         layers: 'rasters:kwale_tif',
+//         format: 'image/png',
+//         transparent: true,  
+//         opacity:1
+//         // tiles: true,  
+// }).addTo(map);
 
 
-var overlay2 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
-        pane: 'right',
-        layers: 'rasters:kwale',
-        format: 'image/png',
-        transparent: true,  
-        opacity:1
-        // tiles: true,  
-}).addTo(map);
-// var overlay1 = kiambu
-// var overlay2 = current_geojson.value
+// var overlay22 = L.tileLayer.wms("http://localhost:8005/geoserver/rasters/wms", {
+//         pane: 'right',
+//         layers: 'rasters:kwale',
+//         format: 'image/png',
+//         transparent: true,  
+//         opacity:1
+//         // tiles: true,  
+// }).addTo(map);
+var overlay1 = wmsLayer.value //kiambu raster
+var overlay2 = wmsLayerCompare.value //machakos raster
 // console.log(overlay1, 'overlay1')
 // console.log(overlay2, 'overlay2')
 
-swipe_control = L.control.sideBySide(overlay1, overlay2).addTo(map);
+swipe_control = L.control.sideBySide(overlay1,overlay2).addTo(map);
    
    
 

@@ -169,7 +169,7 @@ export const useCounterStore = defineStore({
               console.log(resp.data, 'await response data');
               this.loading = false;
               this.crs = resp.data.crs.properties.name
-              console.log(crs, 'crs')
+              console.log(this.crs, 'crs')
               return resp.data
           } catch (err) {
               // Handle Error Here
